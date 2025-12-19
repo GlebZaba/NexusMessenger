@@ -468,10 +468,13 @@
             position: relative;
             transition: all 0.3s ease;
             cursor: pointer;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
         }
 
-        .user-avatar:hover {
-            transform: scale(1.1) rotate(-5deg);
+        .user-avatar.has-image {
+            background: none;
         }
 
         .user-avatar #userAvatarText {
@@ -658,6 +661,13 @@
             font-weight: 600;
             position: relative;
             transition: all 0.3s ease;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .item-avatar.has-image {
+            background: none;
         }
 
         .contact-item:hover .item-avatar,
@@ -764,6 +774,9 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: slideInLeft 0.5s ease;
+            line-height: 1.1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .welcome-subtitle {
@@ -772,6 +785,8 @@
             margin-bottom: 40px;
             line-height: 1.6;
             animation: slideInRight 0.5s ease 0.1s both;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .welcome-features {
@@ -829,6 +844,7 @@
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 12px;
+            line-height: 1.2;
         }
 
         .feature-text {
@@ -932,6 +948,13 @@
             flex-shrink: 0;
             transition: all 0.3s ease;
             cursor: pointer;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .message-avatar.has-image {
+            background: none;
         }
 
         .message-avatar:hover {
@@ -957,6 +980,9 @@
             position: relative;
             transition: all 0.3s ease;
             animation: bubbleAppear 0.3s ease;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
 
         @keyframes bubbleAppear {
@@ -1140,6 +1166,7 @@
             font-weight: 600;
             margin-bottom: 4px;
             transition: all 0.3s ease;
+            word-wrap: break-word;
         }
 
         .file-message:hover .file-name {
@@ -1831,6 +1858,13 @@
             margin: 0 auto 20px;
             animation: pulse 2s infinite;
             transition: all 0.3s ease;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .call-avatar.has-image {
+            background: none;
         }
 
         .call-avatar:hover {
@@ -2000,6 +2034,20 @@
 
         /* Адаптивность */
         @media (max-width: 768px) {
+            .auth-card {
+                padding: 30px;
+                margin: 20px;
+            }
+            
+            .logo {
+                font-size: 32px;
+            }
+            
+            .logo img {
+                width: 50px;
+                height: 50px;
+            }
+            
             .sidebar {
                 width: 100%;
             }
@@ -2049,6 +2097,80 @@
                 width: 40px;
                 height: 40px;
                 font-size: 16px;
+            }
+            
+            .header-actions {
+                gap: 8px;
+            }
+            
+            .header-btn {
+                width: 38px;
+                height: 38px;
+            }
+            
+            .messages-wrapper {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-title {
+                font-size: 28px;
+            }
+            
+            .welcome-subtitle {
+                font-size: 14px;
+            }
+            
+            .welcome-features {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .feature {
+                padding: 15px;
+            }
+            
+            .feature-icon {
+                font-size: 36px;
+            }
+            
+            .feature-title {
+                font-size: 16px;
+            }
+            
+            .feature-text {
+                font-size: 12px;
+            }
+            
+            .input-container {
+                padding: 15px;
+            }
+            
+            .input-wrapper {
+                padding: 8px 15px;
+            }
+            
+            .app-header {
+                padding: 0 15px;
+            }
+            
+            .current-chat-info {
+                gap: 10px;
+            }
+            
+            .chat-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+            
+            .chat-info h3 {
+                font-size: 14px;
+            }
+            
+            .chat-info p {
+                font-size: 11px;
             }
         }
 
@@ -2171,6 +2293,85 @@
             justify-content: center;
             font-size: 12px;
         }
+        
+        /* Аватар выбора */
+        .avatar-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .avatar-option {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            overflow: hidden;
+        }
+        
+        .avatar-option:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+        
+        .avatar-option.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+        
+        .avatar-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .upload-avatar-btn {
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px dashed var(--primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-avatar-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary-dark);
+        }
+        
+        .upload-avatar-btn i {
+            font-size: 24px;
+            color: var(--primary);
+        }
+        
+        /* Улучшенная молния в иконке */
+        .lightning-icon {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .lightning-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+            z-index: -1;
+            animation: lightningGlow 2s infinite;
+        }
+        
+        @keyframes lightningGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
     </style>
 </head>
 <body>
@@ -2190,7 +2391,9 @@
         <div class="auth-card">
             <div class="logo-container">
                 <div class="logo">
-                    <img src="Images/Logo.png" alt="Nexus">
+                    <div class="lightning-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
                     Nexus
                 </div>
                 <div class="tagline" id="tagline">Next generation messaging</div>
@@ -2370,7 +2573,9 @@
             <div class="welcome-screen" id="welcomeScreen">
                 <div class="welcome-content">
                     <div class="welcome-icon">
-                        <i class="fas fa-bolt"></i>
+                        <div class="lightning-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
                     </div>
                     <h1 class="welcome-title" id="welcomeTitle">Welcome to Nexus!</h1>
                     <p class="welcome-subtitle" id="welcomeSubtitle">
@@ -2865,6 +3070,13 @@
         };
 
         const EMOJIS = ['😀', '😂', '😍', '😎', '😜', '😢', '😡', '👍', '👎', '❤️', '🔥', '🌟', '🎉', '🤔', '👀', '🙏', '💯', '✨', '🎯', '🏆', '🥰', '😘', '🥳', '😇', '🤩', '😋', '🤪', '😴', '🥺', '🤯'];
+        const DEFAULT_AVATARS = [
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Jordan',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Taylor',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Casey',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Riley'
+        ];
 
         let currentUser = null;
         let currentChat = null;
@@ -2890,6 +3102,95 @@
         let autoPlayVoice = true;
         let voiceQuality = 'high';
         let realTimeInterval = null;
+
+        // ============ БАЗА ДАННЫХ ============
+        class Database {
+            static getUsers() {
+                return JSON.parse(localStorage.getItem('nexus_users') || '[]');
+            }
+            
+            static saveUsers(users) {
+                localStorage.setItem('nexus_users', JSON.stringify(users));
+            }
+            
+            static getUser(userId) {
+                const users = this.getUsers();
+                return users.find(u => u.id === userId);
+            }
+            
+            static updateUser(userId, updates) {
+                const users = this.getUsers();
+                const index = users.findIndex(u => u.id === userId);
+                if (index !== -1) {
+                    users[index] = { ...users[index], ...updates };
+                    this.saveUsers(users);
+                    return true;
+                }
+                return false;
+            }
+            
+            static getChats() {
+                return JSON.parse(localStorage.getItem('nexus_chats') || '[]');
+            }
+            
+            static saveChats(chats) {
+                localStorage.setItem('nexus_chats', JSON.stringify(chats));
+            }
+            
+            static getMessages() {
+                return JSON.parse(localStorage.getItem('nexus_messages') || '{}');
+            }
+            
+            static saveMessages(messages) {
+                localStorage.setItem('nexus_messages', JSON.stringify(messages));
+            }
+            
+            static getFriends(userId) {
+                return JSON.parse(localStorage.getItem(`nexus_friends_${userId}`) || '[]');
+            }
+            
+            static saveFriends(userId, friendsList) {
+                localStorage.setItem(`nexus_friends_${userId}`, JSON.stringify(friendsList));
+            }
+            
+            static getFriendRequests(userId) {
+                return JSON.parse(localStorage.getItem(`nexus_friend_requests_${userId}`) || '[]');
+            }
+            
+            static saveFriendRequests(userId, requests) {
+                localStorage.setItem(`nexus_friend_requests_${userId}`, JSON.stringify(requests));
+            }
+            
+            static getStickerPacks(userId) {
+                return JSON.parse(localStorage.getItem(`nexus_sticker_packs_${userId}`) || '[]');
+            }
+            
+            static saveStickerPacks(userId, packs) {
+                localStorage.setItem(`nexus_sticker_packs_${userId}`, JSON.stringify(packs));
+            }
+            
+            static getSettings(userId) {
+                return JSON.parse(localStorage.getItem(`nexus_settings_${userId}`) || '{}');
+            }
+            
+            static saveSettings(userId, settings) {
+                localStorage.setItem(`nexus_settings_${userId}`, JSON.stringify(settings));
+            }
+            
+            static getCalls() {
+                return JSON.parse(localStorage.getItem('nexus_calls') || '[]');
+            }
+            
+            static saveCalls(calls) {
+                localStorage.setItem('nexus_calls', JSON.stringify(calls));
+            }
+            
+            static addCall(call) {
+                const calls = this.getCalls();
+                calls.push(call);
+                this.saveCalls(calls);
+            }
+        }
 
         // ============ DOM ЭЛЕМЕНТЫ ============
         // Аутентификация
@@ -3118,30 +3419,39 @@
 
         function saveSettings() {
             if (currentUser) {
-                const settings = JSON.parse(localStorage.getItem(`nexus_settings_${currentUser.id}`) || '{}');
-                settings.language = currentLanguage;
-                settings.theme = currentTheme;
-                settings.voiceStyle = voiceStyle;
-                settings.autoPlayVoice = autoPlayVoice;
-                settings.voiceQuality = voiceQuality;
-                localStorage.setItem(`nexus_settings_${currentUser.id}`, JSON.stringify(settings));
+                const settings = {
+                    language: currentLanguage,
+                    theme: currentTheme,
+                    voiceStyle: voiceStyle,
+                    autoPlayVoice: autoPlayVoice,
+                    voiceQuality: voiceQuality,
+                    notifications: true,
+                    messageSound: true,
+                    callSound: true,
+                    lastSeen: 'everyone',
+                    profilePhoto: 'everyone',
+                    avatar: currentUser.avatar
+                };
+                Database.saveSettings(currentUser.id, settings);
             }
         }
 
         function loadSettings() {
             if (currentUser) {
-                const settings = JSON.parse(localStorage.getItem(`nexus_settings_${currentUser.id}`) || '{}');
+                const settings = Database.getSettings(currentUser.id);
                 currentLanguage = settings.language || 'en';
                 currentTheme = settings.theme || 'dark';
                 voiceStyle = settings.voiceStyle || 'modern';
                 autoPlayVoice = settings.autoPlayVoice !== false;
                 voiceQuality = settings.voiceQuality || 'high';
+                currentUser.avatar = settings.avatar || null;
                 
                 document.documentElement.setAttribute('data-theme', currentTheme);
                 langText.textContent = currentLanguage.toUpperCase();
                 themeBtn.innerHTML = currentTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
                 
                 updateTexts();
+                updateUserProfile();
             }
         }
 
@@ -3203,7 +3513,7 @@
             loginButton.disabled = true;
             
             setTimeout(() => {
-                const users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
+                const users = Database.getUsers();
                 const user = users.find(u => u.email === email && u.password === password);
                 
                 if (user) {
@@ -3245,7 +3555,7 @@
             registerButton.disabled = true;
             
             setTimeout(() => {
-                let users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
+                let users = Database.getUsers();
                 
                 if (users.some(u => u.email === email)) {
                     showNotification('Error', 'User with this email already exists', 'error');
@@ -3255,11 +3565,14 @@
                     return;
                 }
                 
+                const randomAvatar = DEFAULT_AVATARS[Math.floor(Math.random() * DEFAULT_AVATARS.length)];
+                
                 const newUser = {
                     id: generateId(),
                     name: name,
                     email: email,
                     password: password,
+                    avatar: randomAvatar,
                     avatarColor: getGradientColor(name),
                     status: 'online',
                     createdAt: new Date().toISOString(),
@@ -3267,7 +3580,7 @@
                 };
                 
                 users.push(newUser);
-                localStorage.setItem('nexus_users', JSON.stringify(users));
+                Database.saveUsers(users);
                 
                 initializeUserData(newUser);
                 loginUser(newUser);
@@ -3275,10 +3588,8 @@
         });
 
         function initializeUserData(user) {
-            localStorage.setItem(`nexus_friends_${user.id}`, JSON.stringify([]));
-            localStorage.setItem(`nexus_blocked_${user.id}`, JSON.stringify([]));
-            localStorage.setItem(`nexus_friend_requests_${user.id}`, JSON.stringify([]));
-            localStorage.setItem(`nexus_chats_${user.id}`, JSON.stringify([]));
+            Database.saveFriends(user.id, []);
+            Database.saveFriendRequests(user.id, []);
             
             const defaultStickerPack = {
                 id: 'default',
@@ -3296,22 +3607,7 @@
                 ownerId: 'system'
             };
             
-            localStorage.setItem(`nexus_sticker_packs_${user.id}`, JSON.stringify([defaultStickerPack]));
-            
-            const defaultSettings = {
-                language: 'en',
-                theme: 'dark',
-                notifications: true,
-                messageSound: true,
-                callSound: true,
-                lastSeen: 'everyone',
-                profilePhoto: 'everyone',
-                voiceStyle: 'modern',
-                autoPlayVoice: true,
-                voiceQuality: 'high'
-            };
-            
-            localStorage.setItem(`nexus_settings_${user.id}`, JSON.stringify(defaultSettings));
+            Database.saveStickerPacks(user.id, [defaultStickerPack]);
         }
 
         function loginUser(user) {
@@ -3338,13 +3634,14 @@
         }
 
         function loadUserData() {
-            users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
-            friends = JSON.parse(localStorage.getItem(`nexus_friends_${currentUser.id}`) || '[]');
-            blockedUsers = JSON.parse(localStorage.getItem(`nexus_blocked_${currentUser.id}`) || '[]');
-            friendRequests = JSON.parse(localStorage.getItem(`nexus_friend_requests_${currentUser.id}`) || '[]');
-            chats = JSON.parse(localStorage.getItem(`nexus_chats_${currentUser.id}`) || '[]');
-            messages = JSON.parse(localStorage.getItem('nexus_messages') || '{}');
-            stickerPacks = JSON.parse(localStorage.getItem(`nexus_sticker_packs_${currentUser.id}`) || []);
+            users = Database.getUsers();
+            friends = Database.getFriends(currentUser.id);
+            friendRequests = Database.getFriendRequests(currentUser.id);
+            chats = Database.getChats().filter(chat => 
+                chat.participants?.includes(currentUser.id)
+            );
+            messages = Database.getMessages();
+            stickerPacks = Database.getStickerPacks(currentUser.id);
             
             updateUserProfile();
             updateFriendsList();
@@ -3363,14 +3660,29 @@
             document.getElementById('userName').textContent = userName;
             document.getElementById('userEmail').textContent = userEmail;
             
-            const avatarText = userName.charAt(0).toUpperCase();
-            document.getElementById('userAvatarText').textContent = avatarText;
-            document.getElementById('userAvatar').style.background = currentUser.avatarColor || getGradientColor(userName);
+            const avatar = document.getElementById('userAvatar');
+            const avatarText = document.getElementById('userAvatarText');
             
-            document.getElementById('userAvatar').innerHTML = `
-                <div id="userAvatarText">${avatarText}</div>
-                <div class="user-status status-online" id="userStatus"></div>
-            `;
+            if (currentUser.avatar) {
+                avatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                avatar.classList.add('has-image');
+                avatarText.style.display = 'none';
+            } else {
+                avatar.style.background = currentUser.avatarColor || getGradientColor(userName);
+                avatar.classList.remove('has-image');
+                avatarText.textContent = userName.charAt(0).toUpperCase();
+                avatarText.style.display = 'flex';
+            }
+            
+            avatar.innerHTML = '';
+            if (!currentUser.avatar) {
+                avatar.appendChild(avatarText);
+            }
+            
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'user-status status-online';
+            statusDiv.id = 'userStatus';
+            avatar.appendChild(statusDiv);
         }
 
         function updateFriendsList() {
@@ -3389,13 +3701,19 @@
             
             friends.forEach(friendId => {
                 const friend = users.find(u => u.id === friendId);
-                if (!friend || blockedUsers.includes(friendId)) return;
+                if (!friend) return;
                 
                 const friendItem = document.createElement('div');
                 friendItem.className = 'friend-item';
+                
+                const avatarClass = friend.avatar ? 'has-image' : '';
+                const avatarStyle = friend.avatar ? 
+                    `background-image: url(${friend.avatar})` : 
+                    `background: ${friend.avatarColor}`;
+                
                 friendItem.innerHTML = `
-                    <div class="item-avatar" style="background: ${friend.avatarColor}">
-                        ${friend.name.charAt(0)}
+                    <div class="item-avatar ${avatarClass}" style="${avatarStyle}">
+                        ${!friend.avatar ? friend.name.charAt(0) : ''}
                         <div class="user-status ${friend.status === 'online' ? 'status-online' : 'status-offline'}"></div>
                     </div>
                     <div class="item-info">
@@ -3428,8 +3746,7 @@
             
             chats.forEach(chat => {
                 const otherUserId = chat.participants?.find(id => id !== currentUser.id);
-                const otherUser = users.find(u => u.id === otherUserId);
-                if (otherUserId && blockedUsers.includes(otherUserId)) return;
+                const otherUser = otherUserId ? users.find(u => u.id === otherUserId) : null;
                 
                 const chatItem = document.createElement('div');
                 chatItem.className = `chat-item ${currentChat && currentChat.id === chat.id ? 'active' : ''}`;
@@ -3451,9 +3768,14 @@
                     }
                 }
                 
+                const avatarClass = (otherUser?.avatar || chat.avatar) ? 'has-image' : '';
+                const avatarStyle = (otherUser?.avatar || chat.avatar) ? 
+                    `background-image: url(${otherUser?.avatar || chat.avatar})` : 
+                    `background: ${chat.avatarColor || (otherUser?.avatarColor || getGradientColor(chat.name))}`;
+                
                 chatItem.innerHTML = `
-                    <div class="item-avatar" style="background: ${chat.avatarColor || (otherUser?.avatarColor || getGradientColor(chat.name))}">
-                        ${chat.name.charAt(0)}
+                    <div class="item-avatar ${avatarClass}" style="${avatarStyle}">
+                        ${!otherUser?.avatar && !chat.avatar ? chat.name.charAt(0) : ''}
                     </div>
                     <div class="item-info">
                         <h4>${chat.name}</h4>
@@ -3563,6 +3885,7 @@
                 id: generateId(),
                 name: friend.name,
                 type: 'private',
+                avatar: friend.avatar,
                 avatarColor: friend.avatarColor,
                 participants: [currentUser.id, friendId],
                 createdAt: new Date().toISOString(),
@@ -3570,12 +3893,30 @@
             };
             
             chats.push(newChat);
-            localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
+            Database.saveChats(chats);
+            
+            // Создать запись в чатах для обоих пользователей
+            updateUserChats(friendId, newChat);
             
             updateChatsList();
             selectChat(newChat);
             
             showNotification('Chat created', `${currentLanguage === 'ru' ? 'Чат создан с' : 'Chat created with'} ${friend.name}`, 'success');
+        }
+
+        function updateUserChats(userId, chat) {
+            const userChats = Database.getChats().filter(c => 
+                c.participants?.includes(userId)
+            );
+            
+            if (!userChats.some(c => c.id === chat.id)) {
+                userChats.push(chat);
+                const allChats = Database.getChats();
+                if (!allChats.some(c => c.id === chat.id)) {
+                    allChats.push(chat);
+                    Database.saveChats(allChats);
+                }
+            }
         }
 
         function selectChat(chat) {
@@ -3585,9 +3926,18 @@
             const otherUser = otherUserId ? users.find(u => u.id === otherUserId) : null;
             
             document.getElementById('currentChatName').textContent = chat.name;
-            const avatarText = chat.name.charAt(0).toUpperCase();
-            document.getElementById('currentChatAvatar').textContent = avatarText;
-            document.getElementById('currentChatAvatar').style.background = chat.avatarColor || (otherUser?.avatarColor || getGradientColor(chat.name));
+            const avatar = document.getElementById('currentChatAvatar');
+            
+            if (otherUser?.avatar || chat.avatar) {
+                avatar.style.backgroundImage = `url(${otherUser?.avatar || chat.avatar})`;
+                avatar.classList.add('has-image');
+                avatar.textContent = '';
+            } else {
+                avatar.style.background = chat.avatarColor || (otherUser?.avatarColor || getGradientColor(chat.name));
+                avatar.classList.remove('has-image');
+                avatar.textContent = chat.name.charAt(0).toUpperCase();
+            }
+            
             document.getElementById('currentChatStatus').textContent = otherUser?.status === 'online' ? 
                 (currentLanguage === 'ru' ? 'В сети' : 'Online') : 
                 (currentLanguage === 'ru' ? 'Не в сети' : 'Offline');
@@ -3600,7 +3950,13 @@
             
             if (chat.unreadCount > 0) {
                 chat.unreadCount = 0;
-                localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
+                const allChats = Database.getChats();
+                const chatIndex = allChats.findIndex(c => c.id === chat.id);
+                if (chatIndex !== -1) {
+                    allChats[chatIndex] = chat;
+                    Database.saveChats(allChats);
+                    chats = allChats.filter(c => c.participants?.includes(currentUser.id));
+                }
                 updateChatsList();
             }
             
@@ -3731,10 +4087,15 @@
                 `;
             }
             
+            const avatarClass = sender.avatar ? 'has-image' : '';
+            const avatarStyle = sender.avatar ? 
+                `background-image: url(${sender.avatar})` : 
+                `background: ${sender.avatarColor || getGradientColor(sender.name)}`;
+            
             message.innerHTML = `
                 ${!isOutgoing ? `
-                    <div class="message-avatar" style="background: ${sender.avatarColor || getGradientColor(sender.name)}">
-                        ${sender.name.charAt(0)}
+                    <div class="message-avatar ${avatarClass}" style="${avatarStyle}">
+                        ${!sender.avatar ? sender.name.charAt(0) : ''}
                     </div>
                 ` : ''}
                 
@@ -3787,17 +4148,18 @@
             messages[currentChat.id].push(message);
             
             try {
-                localStorage.setItem('nexus_messages', JSON.stringify(messages));
+                Database.saveMessages(messages);
                 
                 currentChat.lastMessage = text;
                 currentChat.lastMessageTime = new Date().toISOString();
                 
-                const chatIndex = chats.findIndex(c => c.id === currentChat.id);
+                const allChats = Database.getChats();
+                const chatIndex = allChats.findIndex(c => c.id === currentChat.id);
                 if (chatIndex !== -1) {
-                    chats[chatIndex] = currentChat;
+                    allChats[chatIndex] = currentChat;
+                    Database.saveChats(allChats);
+                    chats = allChats.filter(c => c.participants?.includes(currentUser.id));
                 }
-                
-                localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
                 
                 const messageElement = createMessageElement(message);
                 
@@ -3823,9 +4185,22 @@
                 
                 showNotification('Message sent', 'Message delivered', 'success');
                 
+                // Обновить чат для других участников
+                updateChatForParticipants(currentChat);
+                
             } catch (error) {
                 console.error('Error saving message:', error);
                 showNotification('Error', 'Failed to send message', 'error');
+            }
+        }
+
+        function updateChatForParticipants(chat) {
+            const allChats = Database.getChats();
+            const chatIndex = allChats.findIndex(c => c.id === chat.id);
+            
+            if (chatIndex !== -1) {
+                allChats[chatIndex] = chat;
+                Database.saveChats(allChats);
             }
         }
 
@@ -3967,7 +4342,7 @@
                     
                     if (!messages[currentChat.id]) messages[currentChat.id] = [];
                     messages[currentChat.id].push(voiceMessage);
-                    localStorage.setItem('nexus_messages', JSON.stringify(messages));
+                    Database.saveMessages(messages);
                     
                     const messageElement = createMessageElement(voiceMessage);
                     messagesWrapper.appendChild(messageElement);
@@ -3976,6 +4351,9 @@
                     updateChatsList();
                     
                     showNotification('Voice message', 'Voice message sent', 'success');
+                    
+                    // Обновить чат для других участников
+                    updateChatForParticipants(currentChat);
                 };
                 
                 mediaRecorder.start();
@@ -4078,12 +4456,16 @@
                     if (!messages[currentChat.id]) messages[currentChat.id] = [];
                     messages[currentChat.id].push(fileMessage);
                     
+                    Database.saveMessages(messages);
+                    
                     const messageElement = createMessageElement(fileMessage);
                     messagesWrapper.appendChild(messageElement);
                     messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
                     
-                    localStorage.setItem('nexus_messages', JSON.stringify(messages));
                     updateChatsList();
+                    
+                    // Обновить чат для других участников
+                    updateChatForParticipants(currentChat);
                 };
                 reader.readAsDataURL(file);
             });
@@ -4124,7 +4506,6 @@
             const results = users.filter(user => 
                 user.id !== currentUser.id && 
                 !friends.includes(user.id) &&
-                !blockedUsers.includes(user.id) &&
                 (user.email.toLowerCase().includes(searchTerm) || 
                  user.name.toLowerCase().includes(searchTerm))
             );
@@ -4158,9 +4539,14 @@
                     buttonHtml = `<button onclick="sendFriendRequest('${user.id}')" style="background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Add Friend</button>`;
                 }
                 
+                const avatarClass = user.avatar ? 'has-image' : '';
+                const avatarStyle = user.avatar ? 
+                    `background-image: url(${user.avatar})` : 
+                    `background: ${user.avatarColor}`;
+                
                 resultItem.innerHTML = `
-                    <div style="width: 40px; height: 40px; border-radius: 12px; background: ${user.avatarColor}; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                        ${user.name.charAt(0)}
+                    <div class="item-avatar ${avatarClass}" style="${avatarStyle}">
+                        ${!user.avatar ? user.name.charAt(0) : ''}
                     </div>
                     <div style="flex: 1;">
                         <div style="font-weight: 600;">${user.name}</div>
@@ -4191,9 +4577,14 @@
                 requestItem.className = 'friend-request-item';
                 requestItem.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px;';
                 
+                const avatarClass = user.avatar ? 'has-image' : '';
+                const avatarStyle = user.avatar ? 
+                    `background-image: url(${user.avatar})` : 
+                    `background: ${user.avatarColor}`;
+                
                 requestItem.innerHTML = `
-                    <div style="width: 40px; height: 40px; border-radius: 12px; background: ${user.avatarColor}; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                        ${user.name.charAt(0)}
+                    <div class="item-avatar ${avatarClass}" style="${avatarStyle}">
+                        ${!user.avatar ? user.name.charAt(0) : ''}
                     </div>
                     <div style="flex: 1;">
                         <div style="font-weight: 600;">${user.name}</div>
@@ -4228,11 +4619,11 @@
             };
             
             friendRequests.push(request);
-            localStorage.setItem(`nexus_friend_requests_${currentUser.id}`, JSON.stringify(friendRequests));
+            Database.saveFriendRequests(currentUser.id, friendRequests);
             
-            const receiverRequests = JSON.parse(localStorage.getItem(`nexus_friend_requests_${userId}`) || '[]');
+            const receiverRequests = Database.getFriendRequests(userId);
             receiverRequests.push(request);
-            localStorage.setItem(`nexus_friend_requests_${userId}`, JSON.stringify(receiverRequests));
+            Database.saveFriendRequests(userId, receiverRequests);
             
             showNotification('Friend request sent', 'Friend request sent', 'success');
             updateFriendRequestsList();
@@ -4248,14 +4639,14 @@
                 friends.push(request.from);
             }
             
-            const friendFriends = JSON.parse(localStorage.getItem(`nexus_friends_${request.from}`) || '[]');
+            const friendFriends = Database.getFriends(request.from);
             if (!friendFriends.includes(currentUser.id)) {
                 friendFriends.push(currentUser.id);
-                localStorage.setItem(`nexus_friends_${request.from}`, JSON.stringify(friendFriends));
+                Database.saveFriends(request.from, friendFriends);
             }
             
-            localStorage.setItem(`nexus_friends_${currentUser.id}`, JSON.stringify(friends));
-            localStorage.setItem(`nexus_friend_requests_${currentUser.id}`, JSON.stringify(friendRequests));
+            Database.saveFriends(currentUser.id, friends);
+            Database.saveFriendRequests(currentUser.id, friendRequests);
             
             updateFriendsList();
             updateFriendRequestsList();
@@ -4266,7 +4657,7 @@
 
         function declineFriendRequest(requestId) {
             friendRequests = friendRequests.filter(r => r.id !== requestId);
-            localStorage.setItem(`nexus_friend_requests_${currentUser.id}`, JSON.stringify(friendRequests));
+            Database.saveFriendRequests(currentUser.id, friendRequests);
             
             updateFriendRequestsList();
             updateBadges();
@@ -4279,11 +4670,11 @@
             if (!request) return;
             
             friendRequests = friendRequests.filter(r => r.id !== requestId);
-            localStorage.setItem(`nexus_friend_requests_${currentUser.id}`, JSON.stringify(friendRequests));
+            Database.saveFriendRequests(currentUser.id, friendRequests);
             
-            const receiverRequests = JSON.parse(localStorage.getItem(`nexus_friend_requests_${request.to}`) || '[]');
+            const receiverRequests = Database.getFriendRequests(request.to);
             const updatedReceiverRequests = receiverRequests.filter(r => r.id !== requestId);
-            localStorage.setItem(`nexus_friend_requests_${request.to}`, JSON.stringify(updatedReceiverRequests));
+            Database.saveFriendRequests(request.to, updatedReceiverRequests);
             
             updateFriendRequestsList();
             updateBadges();
@@ -4326,8 +4717,11 @@
         }
 
         function deleteChat(chatId) {
-            chats = chats.filter(chat => chat.id !== chatId);
-            localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
+            const allChats = Database.getChats();
+            const updatedChats = allChats.filter(chat => chat.id !== chatId);
+            Database.saveChats(updatedChats);
+            
+            chats = updatedChats.filter(c => c.participants?.includes(currentUser.id));
             
             if (currentChat && currentChat.id === chatId) {
                 currentChat = null;
@@ -4432,7 +4826,7 @@
             
             if (!messages[currentChat.id]) messages[currentChat.id] = [];
             messages[currentChat.id].push(stickerMessage);
-            localStorage.setItem('nexus_messages', JSON.stringify(messages));
+            Database.saveMessages(messages);
             
             const messageElement = createMessageElement(stickerMessage);
             messagesWrapper.appendChild(messageElement);
@@ -4441,10 +4835,13 @@
             stickerPanel.classList.remove('active');
             updateChatsList();
             
+            // Обновить чат для других участников
+            updateChatForParticipants(currentChat);
+            
             const pack = stickerPacks.find(p => p.id === packId);
             if (pack) {
                 pack.installs = (pack.installs || 0) + 1;
-                localStorage.setItem(`nexus_sticker_packs_${currentUser.id}`, JSON.stringify(stickerPacks));
+                Database.saveStickerPacks(currentUser.id, stickerPacks);
             }
         }
 
@@ -4565,7 +4962,7 @@
             };
             
             stickerPacks.push(newPack);
-            localStorage.setItem(`nexus_sticker_packs_${currentUser.id}`, JSON.stringify(stickerPacks));
+            Database.saveStickerPacks(currentUser.id, stickerPacks);
             
             updateStickerPacks();
             createStickerPackModal.classList.remove('active');
@@ -4617,7 +5014,7 @@
             if (!confirm(currentLanguage === 'ru' ? 'Удалить этот стикерпак?' : 'Delete this sticker pack?')) return;
             
             stickerPacks = stickerPacks.filter(p => p.id !== packId);
-            localStorage.setItem(`nexus_sticker_packs_${currentUser.id}`, JSON.stringify(stickerPacks));
+            Database.saveStickerPacks(currentUser.id, stickerPacks);
             
             updateStickerPacks();
             stickerStatsModal.classList.remove('active');
@@ -4656,12 +5053,22 @@
                 startedAt: new Date().toISOString()
             };
             
+            Database.addCall(currentCall);
+            
             callContainer.classList.add('active');
             callStatus.textContent = t('calling');
             callTimer.textContent = '00:00';
-            const callAvatarText = otherUser.name.charAt(0).toUpperCase();
-            document.getElementById('callAvatar').textContent = callAvatarText;
-            document.getElementById('callAvatar').style.background = otherUser.avatarColor;
+            const callAvatar = document.getElementById('callAvatar');
+            
+            if (otherUser.avatar) {
+                callAvatar.style.backgroundImage = `url(${otherUser.avatar})`;
+                callAvatar.classList.add('has-image');
+                callAvatar.textContent = '';
+            } else {
+                callAvatar.style.background = otherUser.avatarColor;
+                callAvatar.classList.remove('has-image');
+                callAvatar.textContent = otherUser.name.charAt(0).toUpperCase();
+            }
             
             acceptCall.style.display = 'none';
             declineCall.style.display = 'flex';
@@ -4682,6 +5089,14 @@
             if (currentCall) {
                 currentCall.endedAt = new Date().toISOString();
                 currentCall.duration = callTime;
+                currentCall.status = 'ended';
+                
+                const calls = Database.getCalls();
+                const callIndex = calls.findIndex(c => c.id === currentCall.id);
+                if (callIndex !== -1) {
+                    calls[callIndex] = currentCall;
+                    Database.saveCalls(calls);
+                }
             }
         }
 
@@ -4728,7 +5143,7 @@
         });
 
         function loadSettingsContent() {
-            const settings = JSON.parse(localStorage.getItem(`nexus_settings_${currentUser.id}`) || '{}');
+            const settings = Database.getSettings(currentUser.id);
             
             settingsModalContent.innerHTML = `
                 <div class="settings-tab-content active" data-tab="account">
@@ -4745,6 +5160,14 @@
                                 <div class="setting-label">${currentLanguage === 'ru' ? 'Email' : 'Email'}</div>
                                 <div class="setting-control">
                                     <input type="email" class="form-input" id="userEmailInput" value="${currentUser.email}" style="width: 200px;">
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">${currentLanguage === 'ru' ? 'Аватар' : 'Avatar'}</div>
+                                <div class="setting-control">
+                                    <button class="auth-button" onclick="openAvatarSelector()" style="padding: 12px 24px; font-size: 14px;">
+                                        ${currentLanguage === 'ru' ? 'Изменить аватар' : 'Change Avatar'}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -4882,7 +5305,7 @@
             
             document.getElementById('userNameInput').addEventListener('change', (e) => {
                 currentUser.name = e.target.value;
-                localStorage.setItem('nexus_current_user', JSON.stringify(currentUser));
+                Database.updateUser(currentUser.id, { name: currentUser.name });
                 updateUserProfile();
                 updateChatsList();
             });
@@ -4917,6 +5340,92 @@
                     });
                 }
             });
+        }
+
+        function openAvatarSelector() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 2000;';
+            
+            modal.innerHTML = `
+                <div class="modal" style="background: var(--card); border-radius: 20px; padding: 30px; max-width: 500px;">
+                    <h3 style="margin-bottom: 20px;">${currentLanguage === 'ru' ? 'Выберите аватар' : 'Choose Avatar'}</h3>
+                    <div class="avatar-options">
+                        ${DEFAULT_AVATARS.map((avatar, index) => `
+                            <div class="avatar-option ${currentUser.avatar === avatar ? 'selected' : ''}" 
+                                 onclick="selectAvatar('${avatar}')">
+                                <img src="${avatar}" alt="Avatar ${index + 1}">
+                            </div>
+                        `).join('')}
+                        <div class="avatar-option upload-avatar-btn" onclick="uploadCustomAvatar()">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 30px;">
+                        <button onclick="saveAvatar()" style="flex: 1; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer;">
+                            ${currentLanguage === 'ru' ? 'Сохранить' : 'Save'}
+                        </button>
+                        <button onclick="this.closest('.modal-overlay').remove()" style="flex: 1; background: none; border: 1px solid var(--glass-border); color: var(--text); padding: 12px; border-radius: 10px; cursor: pointer;">
+                            ${currentLanguage === 'ru' ? 'Отмена' : 'Cancel'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        let selectedAvatarUrl = currentUser.avatar;
+
+        function selectAvatar(avatarUrl) {
+            selectedAvatarUrl = avatarUrl;
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.avatar-option').classList.add('selected');
+        }
+
+        function uploadCustomAvatar() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        selectedAvatarUrl = e.target.result;
+                        const avatarOptions = document.querySelector('.avatar-options');
+                        const customOption = document.createElement('div');
+                        customOption.className = 'avatar-option selected';
+                        customOption.innerHTML = `<img src="${selectedAvatarUrl}" alt="Custom Avatar">`;
+                        customOption.onclick = () => selectAvatar(selectedAvatarUrl);
+                        avatarOptions.insertBefore(customOption, avatarOptions.lastElementChild);
+                        document.querySelectorAll('.avatar-option').forEach(option => {
+                            option.classList.remove('selected');
+                        });
+                        customOption.classList.add('selected');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        function saveAvatar() {
+            currentUser.avatar = selectedAvatarUrl;
+            Database.updateUser(currentUser.id, { avatar: selectedAvatarUrl });
+            saveSettings();
+            updateUserProfile();
+            updateChatsList();
+            document.querySelector('.modal-overlay.active')?.remove();
+            showNotification('Avatar updated', 'Your avatar has been updated', 'success');
         }
 
         // ============ ВЫХОД ============
@@ -4990,9 +5499,22 @@
             }
             
             realTimeInterval = setInterval(() => {
+                // Обновляем данные из базы
+                users = Database.getUsers();
+                chats = Database.getChats().filter(chat => 
+                    chat.participants?.includes(currentUser.id)
+                );
+                messages = Database.getMessages();
+                
+                // Обновляем интерфейс
                 updateChatsList();
                 updateFriendsList();
                 updateBadges();
+                
+                // Обновляем текущий чат если он открыт
+                if (currentChat) {
+                    loadMessages(currentChat.id);
+                }
             }, 3000);
         }
 
@@ -5002,7 +5524,7 @@
                 const savedUser = localStorage.getItem('nexus_current_user');
                 if (savedUser) {
                     const user = JSON.parse(savedUser);
-                    const users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
+                    const users = Database.getUsers();
                     
                     if (users.some(u => u.id === user.id)) {
                         loginUser(user);
@@ -5037,6 +5559,10 @@
         window.requestMicrophone = requestMicrophone;
         window.requestCamera = requestCamera;
         window.closePermissionModal = closePermissionModal;
+        window.openAvatarSelector = openAvatarSelector;
+        window.selectAvatar = selectAvatar;
+        window.uploadCustomAvatar = uploadCustomAvatar;
+        window.saveAvatar = saveAvatar;
     </script>
 </body>
 </html>
