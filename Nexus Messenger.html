@@ -1,0 +1,4987 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Messenger</title>
+    <link rel="icon" type="image/x-icon" href="Images/Logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --secondary: #8B5CF6;
+            --accent: #EC4899;
+            --dark: #0F172A;
+            --darker: #020617;
+            --card: #1E293B;
+            --light: #F8FAFC;
+            --text: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --online: #10B981;
+            --idle: #F59E0B;
+            --dnd: #EF4444;
+            --offline: #64748B;
+            --gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 25%, #EC4899 100%);
+            --gradient-dark: linear-gradient(135deg, #4F46E5 0%, #7C3AED 25%, #DB2777 100%);
+            --glass: rgba(30, 41, 59, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --modal-backdrop: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Light theme */
+        [data-theme="light"] {
+            --dark: #FFFFFF;
+            --darker: #F8FAFC;
+            --card: #F1F5F9;
+            --light: #0F172A;
+            --text: #1E293B;
+            --text-secondary: #64748B;
+            --glass: rgba(241, 245, 249, 0.85);
+            --glass-border: rgba(0, 0, 0, 0.15);
+            --modal-backdrop: rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--darker);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Аутентификация */
+        .auth-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            background: var(--darker);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .auth-card {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            border-radius: 32px;
+            padding: 60px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-size: 42px;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo img {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 500;
+            animation: fadeIn 1s ease 0.3s both;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            animation: fadeIn 0.5s ease 0.4s both;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--text);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            animation: fadeIn 0.5s ease 0.5s both;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            animation: slideInLeft 0.5s ease;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            color: var(--text);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--text);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .auth-button {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .auth-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .auth-button:hover::after {
+            left: 100%;
+        }
+
+        /* Основной интерфейс */
+        .app-container {
+            display: none;
+            height: 100vh;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .current-chat-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            animation: fadeIn 0.5s ease 0.2s both;
+        }
+
+        .chat-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-avatar:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .chat-info h3 {
+            font-size: 18px;
+            font-weight: 700;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        .chat-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            animation: slideInLeft 0.5s ease 0.1s both;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.5s ease 0.3s both;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            animation: bounceIn 0.5s ease;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px) scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-btn .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        /* Боковая панель */
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            bottom: 0;
+            width: 320px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 30px 0;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 900;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .user-profile {
+            padding: 0 24px 30px;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 30px;
+            animation: slideInRight 0.5s ease;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .user-avatar #userAvatarText {
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover #userAvatarText {
+            transform: scale(1.2);
+        }
+
+        .user-status {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 3px solid var(--card);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .status-online { background: var(--online); }
+        .status-idle { background: var(--idle); animation: pulse 4s infinite; }
+        .status-dnd { background: var(--dnd); }
+        .status-offline { background: var(--offline); }
+
+        .user-details h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        .user-details p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            animation: slideInLeft 0.5s ease 0.1s both;
+        }
+
+        /* Навигация */
+        .sidebar-nav {
+            padding: 0 24px;
+            margin-bottom: 30px;
+            animation: slideInRight 0.5s ease 0.1s both;
+        }
+
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-secondary);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            transform: translateX(10px);
+        }
+
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--text);
+            transform: translateX(10px);
+        }
+
+        .badge {
+            background: var(--primary);
+            color: white;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: auto;
+            animation: pulse 2s infinite;
+        }
+
+        /* Секции */
+        .sidebar-section {
+            margin-bottom: 30px;
+            animation: slideInRight 0.5s ease;
+        }
+
+        .sidebar-section:nth-child(1) { animation-delay: 0.1s; }
+        .sidebar-section:nth-child(2) { animation-delay: 0.2s; }
+        .sidebar-section:nth-child(3) { animation-delay: 0.3s; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .section-action {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .section-action:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Контакты и чаты */
+        .contact-list, .chat-list, .friend-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .contact-item, .chat-item, .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInRight 0.5s ease;
+            position: relative;
+        }
+
+        .contact-item:hover, .chat-item:hover, .friend-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .contact-item.active, .chat-item.active, .friend-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            transform: translateX(5px);
+        }
+
+        .item-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover .item-avatar,
+        .chat-item:hover .item-avatar,
+        .friend-item:hover .item-avatar {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .item-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .item-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+        }
+
+        .chat-item:hover .chat-actions {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .chat-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            transform: scale(1.2);
+        }
+
+        /* Область чата */
+        .chat-container {
+            margin-top: 70px;
+            margin-left: 0;
+            height: calc(100vh - 70px);
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .chat-container.sidebar-active {
+            margin-left: 320px;
+        }
+
+        /* Приветственный экран */
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: var(--glass);
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .welcome-content {
+            max-width: 800px;
+            text-align: center;
+            animation: slideUp 0.5s ease;
+        }
+
+        .welcome-icon {
+            font-size: 120px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+            animation: bounceIn 1s ease, lightning 2s infinite 1s;
+        }
+
+        @keyframes lightning {
+            0%, 90%, 100% { opacity: 1; }
+            95% { opacity: 0.5; }
+        }
+
+        .welcome-title {
+            font-size: 56px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        .welcome-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.6;
+            animation: slideInRight 0.5s ease 0.1s both;
+        }
+
+        .welcome-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+            animation: fadeIn 0.5s ease 0.2s both;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature:hover {
+            transform: translateY(-10px) scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .feature:hover::before {
+            left: 100%;
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover .feature-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .start-chat-button {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2s infinite;
+        }
+
+        .start-chat-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .start-chat-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .start-chat-button:hover::after {
+            left: 100%;
+        }
+
+        /* Сообщения */
+        .messages-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: var(--glass);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .message-date {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 0;
+            animation: slideDown 0.5s ease;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+            animation: messageAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes messageAppear {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .message.outgoing {
+            flex-direction: row-reverse;
+            animation: messageAppearRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes messageAppearRight {
+            from { transform: translateY(20px) translateX(20px); opacity: 0; }
+            to { transform: translateY(0) translateX(0); opacity: 1; }
+        }
+
+        .message-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .message-avatar:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .message-content {
+            max-width: 70%;
+        }
+
+        .message.outgoing .message-content {
+            align-items: flex-end;
+        }
+
+        .message-bubble {
+            background: var(--card);
+            padding: 16px 20px;
+            border-radius: 20px;
+            line-height: 1.6;
+            font-size: 16px;
+            margin-bottom: 8px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            transition: all 0.3s ease;
+            animation: bubbleAppear 0.3s ease;
+        }
+
+        @keyframes bubbleAppear {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .message-bubble:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .message.outgoing .message-bubble {
+            background: var(--gradient);
+            border: none;
+        }
+
+        /* Эмодзи сообщения */
+        .emoji-message {
+            font-size: 64px;
+            padding: 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-block;
+        }
+
+        .emoji-message:hover {
+            transform: scale(1.1) rotate(5deg);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Голосовые сообщения */
+        .voice-message {
+            background: var(--gradient);
+            border-radius: 25px;
+            padding: 20px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-width: 250px;
+            max-width: 400px;
+            position: relative;
+            overflow: hidden;
+            animation: voiceMessageAppear 0.5s ease;
+        }
+
+        @keyframes voiceMessageAppear {
+            from { transform: translateY(20px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .voice-message:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .voice-message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .voice-message:hover::before {
+            left: 100%;
+        }
+
+        .voice-play-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .voice-play-button:hover {
+            transform: scale(1.2) rotate(180deg);
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .voice-waveform {
+            flex: 1;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .voice-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: rgba(255, 255, 255, 0.6);
+            transition: width 0.1s linear;
+            animation: wavePulse 2s infinite;
+        }
+
+        @keyframes wavePulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .voice-duration {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: right;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Файлы */
+        .file-message {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 400px;
+            animation: messageAppear 0.3s ease;
+        }
+
+        .file-message:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .file-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .file-message:hover .file-icon {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .file-message:hover .file-name {
+            color: var(--primary);
+        }
+
+        .file-size {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .file-download {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .file-download:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        /* Стикеры */
+        .sticker-message {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-block;
+            animation: stickerAppear 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes stickerAppear {
+            from { transform: scale(0) rotate(-180deg); opacity: 0; }
+            to { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        .sticker-message:hover {
+            transform: scale(1.1) rotate(5deg);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .sticker-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 16px;
+            object-fit: contain;
+            transition: all 0.3s ease;
+        }
+
+        /* Панель ввода */
+        .input-container {
+            padding: 20px 30px;
+            background: var(--glass);
+            border-top: 1px solid var(--glass-border);
+            animation: slideUp 0.5s ease;
+        }
+
+        .input-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            border: 2px solid var(--glass-border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-action {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-action:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .message-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 16px;
+            padding: 10px 0;
+            outline: none;
+            min-height: 28px;
+            max-height: 120px;
+            resize: none;
+            transition: all 0.3s ease;
+        }
+
+        .message-input:focus {
+            transform: translateY(-2px);
+        }
+
+        .send-button {
+            background: var(--gradient);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .send-button:hover {
+            transform: translateY(-5px) scale(1.1) rotate(10deg);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .send-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .send-button:hover::after {
+            left: 100%;
+        }
+
+        /* Эмодзи панель */
+        .emoji-panel {
+            position: absolute;
+            bottom: 100px;
+            left: 30px;
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            display: none;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
+            width: 400px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: panelAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes panelAppear {
+            from { transform: translateY(20px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .emoji-panel.active {
+            display: grid;
+        }
+
+        .emoji-item {
+            font-size: 32px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .emoji-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.3) rotate(10deg);
+        }
+
+        /* Стикер панель */
+        .sticker-panel {
+            position: absolute;
+            bottom: 100px;
+            left: 30px;
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            width: 500px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: panelAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sticker-panel.active {
+            display: flex;
+        }
+
+        .sticker-pack {
+            margin-bottom: 20px;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        .sticker-pack-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sticker-pack-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sticker-pack:hover .sticker-pack-avatar {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .sticker-pack-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sticker-pack-info {
+            flex: 1;
+        }
+
+        .sticker-pack-info h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .sticker-pack-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .sticker-pack-stats {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .stat:hover {
+            color: var(--text);
+            transform: translateY(-2px);
+        }
+
+        .sticker-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .sticker-item {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sticker-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.2) rotate(5deg);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .sticker-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: all 0.3s ease;
+        }
+
+        .sticker-item:hover img {
+            transform: scale(1.1);
+        }
+
+        /* Создание стикер пака */
+        .create-sticker-pack {
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px dashed var(--primary);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .create-sticker-pack:hover {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateY(-5px) scale(1.05);
+            border-style: solid;
+        }
+
+        /* Модальные окна */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-backdrop);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: modalAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+        }
+
+        @keyframes modalAppear {
+            from { transform: scale(0.8) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 30px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .modal-content {
+            padding: 30px;
+            max-height: 70vh;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Настройки - отдельное модальное окно */
+        .settings-modal {
+            max-width: 500px;
+        }
+
+        .settings-tabs {
+            display: flex;
+            gap: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+
+        .settings-tab {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .settings-tab.active {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--text);
+        }
+
+        .settings-tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .settings-tab-content.active {
+            display: block;
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+            animation: slideInRight 0.5s ease;
+        }
+
+        .settings-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text);
+        }
+
+        .settings-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .setting-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .setting-label {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .setting-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-checkbox {
+            display: none;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 34px;
+            transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        .toggle-checkbox:checked + .toggle-slider {
+            background: var(--primary);
+        }
+
+        .toggle-checkbox:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        .select-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 150px;
+            transition: all 0.3s ease;
+        }
+
+        .select-input:focus {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Язык и тема - отдельные кнопки в шапке */
+        .top-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 9999;
+        }
+
+        .control-btn {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 20px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Окно выхода */
+        .logout-modal {
+            max-width: 400px;
+        }
+
+        .logout-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 30px;
+        }
+
+        .logout-btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .logout-confirm {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .logout-cancel {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Звонки */
+        .call-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--darker);
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .call-container.active {
+            display: flex;
+        }
+
+        .call-info {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.5s ease;
+        }
+
+        .call-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 30px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            margin: 0 auto 20px;
+            animation: pulse 2s infinite;
+            transition: all 0.3s ease;
+        }
+
+        .call-avatar:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .call-status {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .call-timer {
+            font-size: 32px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s infinite;
+        }
+
+        .call-controls {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+            animation: slideUp 0.5s ease;
+        }
+
+        .call-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .call-btn:hover {
+            transform: scale(1.2) rotate(10deg);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .call-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .call-btn:hover::after {
+            left: 100%;
+        }
+
+        .call-btn.accept {
+            background: var(--success);
+        }
+
+        .call-btn.decline {
+            background: var(--danger);
+        }
+
+        .call-btn.end {
+            background: var(--danger);
+        }
+
+        .call-btn.mute {
+            background: var(--warning);
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: var(--card);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 9999;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 400px;
+            backdrop-filter: blur(20px);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .notification.success .notification-icon {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .notification.error .notification-icon {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .notification.info .notification-icon {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+        }
+
+        .notification-content h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .notification-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Загрузка */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Анимации для списков */
+        @keyframes listItemAppear {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+            }
+            
+            .chat-container.sidebar-active {
+                margin-left: 0;
+            }
+            
+            .welcome-title {
+                font-size: 36px;
+            }
+            
+            .welcome-subtitle {
+                font-size: 16px;
+            }
+            
+            .feature {
+                padding: 20px;
+            }
+            
+            .emoji-panel,
+            .sticker-panel {
+                width: calc(100% - 60px);
+                left: 30px;
+            }
+            
+            .sticker-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .sticker-item {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .modal {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .top-controls {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .control-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
+
+        /* Стикеры - фиксированный размер */
+        .sticker-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .sticker-container img {
+            max-width: 150px;
+            max-height: 150px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Плавная анимация для всех элементов */
+        * {
+            scroll-behavior: smooth;
+        }
+
+        /* Микрофон и камера разрешения */
+        .permission-request {
+            background: var(--gradient);
+            color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .permission-btn {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .permission-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Реальное время обновление */
+        .real-time-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--success);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Кнопки языка и темы -->
+    <div class="top-controls">
+        <button class="control-btn" id="themeBtn" title="Theme">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="control-btn" id="langBtn" title="Language">
+            <i class="fas fa-globe"></i>
+            <span style="font-size: 12px; margin-left: 2px;" id="langText">EN</span>
+        </button>
+    </div>
+
+    <!-- Аутентификация -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-card">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="Images/Logo.png" alt="Nexus">
+                    Nexus
+                </div>
+                <div class="tagline" id="tagline">Next generation messaging</div>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab">Login</button>
+                <button class="auth-tab" id="registerTab">Register</button>
+            </div>
+            
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="loginEmail">Email</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Your password" required>
+                    <button type="button" class="password-toggle" id="loginPasswordToggle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <button type="submit" class="auth-button" id="loginButton">
+                    <span id="loginText">Login to account</span>
+                </button>
+            </form>
+            
+            <form class="auth-form" id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label" for="registerName">Name</label>
+                    <input type="text" class="form-input" id="registerName" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="registerEmail">Email</label>
+                    <input type="email" class="form-input" id="registerEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="registerPassword">Password</label>
+                    <input type="password" class="form-input" id="registerPassword" placeholder="At least 6 characters" required>
+                    <button type="button" class="password-toggle" id="registerPasswordToggle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="registerConfirmPassword">Confirm password</label>
+                    <input type="password" class="form-input" id="registerConfirmPassword" placeholder="Repeat password" required>
+                </div>
+                <button type="submit" class="auth-button" id="registerButton">
+                    <span id="registerText">Create account</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Основной интерфейс -->
+    <div class="app-container" id="appContainer">
+        <!-- Шапка -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="current-chat-info">
+                    <div class="chat-avatar" id="currentChatAvatar">N</div>
+                    <div class="chat-info">
+                        <h3 id="currentChatName">Nexus Messenger</h3>
+                        <p id="currentChatStatus">Welcome!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button class="header-btn" title="New chat" id="newChatButton">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="header-btn" title="Voice call" id="voiceCallButton">
+                    <i class="fas fa-phone"></i>
+                </button>
+                <button class="header-btn" title="Video call" id="videoCallButton">
+                    <i class="fas fa-video"></i>
+                </button>
+                <button class="header-btn" title="Friends" id="friendsButton">
+                    <i class="fas fa-user-friends"></i>
+                    <div class="badge" id="friendRequestsBadge" style="display: none;">0</div>
+                </button>
+                <button class="header-btn" title="Settings" id="settingsButton">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="header-btn" title="Logout" id="logoutButton">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Боковая панель -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Профиль -->
+            <div class="user-profile">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">
+                        <div id="userAvatarText">U</div>
+                        <div class="user-status status-online" id="userStatus"></div>
+                    </div>
+                    <div class="user-details">
+                        <h4 id="userName">User</h4>
+                        <p id="userEmail">user@example.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Навигация -->
+            <nav class="sidebar-nav">
+                <div class="nav-list">
+                    <div class="nav-item active" data-section="chats">
+                        <i class="fas fa-comments"></i>
+                        <span id="navChats">Chats</span>
+                        <div class="badge" id="unreadChatsBadge" style="display: none;">0</div>
+                    </div>
+                    <div class="nav-item" data-section="friends">
+                        <i class="fas fa-user-friends"></i>
+                        <span id="navFriends">Friends</span>
+                        <div class="badge" id="navFriendsBadge" style="display: none;">0</div>
+                    </div>
+                    <div class="nav-item" data-section="stickers">
+                        <i class="fas fa-sticky-note"></i>
+                        <span id="navStickers">Stickers</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Секции -->
+            <div class="sidebar-sections">
+                <!-- Чаты -->
+                <div class="sidebar-section" id="chatsSection">
+                    <div class="section-header">
+                        <div class="section-title" id="chatsTitle">Chats</div>
+                        <button class="section-action" id="createGroupButton">
+                            <i class="fas fa-plus"></i> <span id="createGroupText">Group</span>
+                        </button>
+                    </div>
+                    <div class="chat-list" id="chatList">
+                        <!-- Чаты будут здесь -->
+                    </div>
+                </div>
+
+                <!-- Друзья -->
+                <div class="sidebar-section" id="friendsSection" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-title" id="friendsTitle">Friends</div>
+                        <button class="section-action" id="addFriendButton">
+                            <i class="fas fa-user-plus"></i> <span id="addFriendText">Add</span>
+                        </button>
+                    </div>
+                    <div class="friend-list" id="friendList">
+                        <!-- Друзья будут здесь -->
+                    </div>
+                </div>
+
+                <!-- Стикеры -->
+                <div class="sidebar-section" id="stickersSection" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-title" id="stickersTitle">My stickers</div>
+                        <button class="section-action" id="createStickerPackButton">
+                            <i class="fas fa-plus"></i> <span id="createStickerText">Create</span>
+                        </button>
+                    </div>
+                    <div class="sticker-pack-list" id="stickerPackList">
+                        <!-- Стикер паки будут здесь -->
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Область чата -->
+        <main class="chat-container" id="chatContainer">
+            <!-- Приветственный экран -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h1 class="welcome-title" id="welcomeTitle">Welcome to Nexus!</h1>
+                    <p class="welcome-subtitle" id="welcomeSubtitle">
+                        Next generation messaging platform.<br>
+                        Chat, share files, create stickers and more.
+                    </p>
+                    <button class="start-chat-button" id="startChatWelcome">
+                        <i class="fas fa-plus"></i> <span id="startChatText">Start new chat</span>
+                    </button>
+                    
+                    <div class="welcome-features">
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="feature-title" id="feature1Title">Real-time chat</div>
+                            <div class="feature-text" id="feature1Text">Instant messaging with friends</div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-microphone"></i>
+                            </div>
+                            <div class="feature-title" id="feature2Title">Voice messages</div>
+                            <div class="feature-text" id="feature2Text">Record and send audio messages</div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-sticky-note"></i>
+                            </div>
+                            <div class="feature-title" id="feature3Title">Sticker creation</div>
+                            <div class="feature-text" id="feature3Text">Create your own sticker packs</div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="feature-title" id="feature4Title">Voice & video calls</div>
+                            <div class="feature-text" id="feature4Text">High quality calls with friends</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Сообщения -->
+            <div class="messages-wrapper" id="messagesWrapper" style="display: none;">
+                <!-- Сообщения будут здесь -->
+            </div>
+
+            <!-- Панель ввода -->
+            <div class="input-container" id="inputContainer" style="display: none;">
+                <div class="input-wrapper">
+                    <div class="input-actions">
+                        <button class="input-action" title="Attach file" id="attachFileButton">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <button class="input-action" title="Emoji" id="emojiButton">
+                            <i class="fas fa-smile"></i>
+                        </button>
+                        <button class="input-action" title="Voice message" id="voiceMessageButton">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="input-action" title="Stickers" id="stickerButton">
+                            <i class="fas fa-sticky-note"></i>
+                        </button>
+                    </div>
+                    
+                    <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1"></textarea>
+                    
+                    <button class="send-button" id="sendButton" title="Send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Панель эмодзи -->
+    <div class="emoji-panel" id="emojiPanel"></div>
+
+    <!-- Панель стикеров -->
+    <div class="sticker-panel" id="stickerPanel"></div>
+
+    <!-- Окно звонка -->
+    <div class="call-container" id="callContainer">
+        <div class="call-info">
+            <div class="call-avatar" id="callAvatar">N</div>
+            <div class="call-status" id="callStatus">Calling...</div>
+            <div class="call-timer" id="callTimer">00:00</div>
+        </div>
+        <div class="call-controls">
+            <button class="call-btn accept" id="acceptCall" style="display: none;">
+                <i class="fas fa-phone"></i>
+            </button>
+            <button class="call-btn decline" id="declineCall">
+                <i class="fas fa-phone-slash"></i>
+            </button>
+            <button class="call-btn end" id="endCall" style="display: none;">
+                <i class="fas fa-phone-slash"></i>
+            </button>
+            <button class="call-btn mute" id="muteCall" style="display: none;">
+                <i class="fas fa-microphone-slash"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <!-- Модалка добавления друга -->
+    <div class="modal-overlay" id="addFriendModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="addFriendTitle">Add friends</h2>
+                <button class="modal-close" id="closeAddFriend">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <input type="text" class="form-input" id="searchFriendInput" placeholder="Search by email or name...">
+                <div id="searchResults" style="margin-top: 20px;"></div>
+                <div id="friendRequestsList" style="margin-top: 30px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка создания стикерпака -->
+    <div class="modal-overlay" id="createStickerPackModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="createStickerTitle">Create sticker pack</h2>
+                <button class="modal-close" id="closeCreateSticker">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form class="sticker-create-form" id="stickerPackForm">
+                    <div class="form-group">
+                        <label class="form-label" id="packNameLabel">Pack name</label>
+                        <input type="text" class="form-input" id="stickerPackName" placeholder="Enter pack name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" id="packAuthorLabel">Author</label>
+                        <input type="text" class="form-input" id="stickerPackAuthor" placeholder="Your name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" id="packAvatarLabel">Pack avatar (optional)</label>
+                        <div class="upload-area" id="avatarUploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="upload-text" id="avatarUploadText">Drag avatar here</div>
+                            <div class="upload-subtext" id="avatarUploadSubtext">Or click to select file</div>
+                            <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                        </div>
+                        <div id="avatarPreview" style="margin-top: 20px;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" id="stickersLabel">Add stickers (minimum 3)</label>
+                        <div class="upload-area" id="stickersUploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-sticky-note"></i>
+                            </div>
+                            <div class="upload-text" id="stickersUploadText">Drag stickers here</div>
+                            <div class="upload-subtext" id="stickersUploadSubtext">Or click to select files (PNG, JPG, GIF)</div>
+                            <input type="file" id="stickersUpload" accept="image/*" multiple style="display: none;">
+                        </div>
+                        
+                        <div class="sticker-preview" id="stickerPreview"></div>
+                    </div>
+                    
+                    <button type="submit" class="auth-button" id="createStickerPackBtn">
+                        <span id="createStickerPackText">Create sticker pack</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка статистики стикеров -->
+    <div class="modal-overlay" id="stickerStatsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="stickerStatsTitle">Sticker pack statistics</h2>
+                <button class="modal-close" id="closeStickerStats">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div id="stickerStatsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка настроек -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal settings-modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="settingsModalTitle">Settings</h2>
+                <button class="modal-close" id="closeSettingsModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="settings-tabs" id="settingsTabs">
+                    <button class="settings-tab active" data-tab="account">Account</button>
+                    <button class="settings-tab" data-tab="appearance">Appearance</button>
+                    <button class="settings-tab" data-tab="privacy">Privacy</button>
+                    <button class="settings-tab" data-tab="notifications">Notifications</button>
+                    <button class="settings-tab" data-tab="voice">Voice Messages</button>
+                </div>
+                
+                <div class="settings-content" id="settingsModalContent">
+                    <!-- Content loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка выхода -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal logout-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Logout</h2>
+                <button class="modal-close" id="closeLogoutModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 64px; color: var(--primary); margin-bottom: 20px;">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <h3 style="margin-bottom: 10px;">Are you sure you want to logout?</h3>
+                    <p style="color: var(--text-secondary);">You will need to login again to access your account.</p>
+                    
+                    <div class="logout-actions">
+                        <button class="logout-btn logout-cancel" id="cancelLogout">
+                            Cancel
+                        </button>
+                        <button class="logout-btn logout-confirm" id="confirmLogout">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Запрос разрешений -->
+    <div class="modal-overlay" id="permissionModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Permissions Required</h2>
+            </div>
+            <div class="modal-content">
+                <div class="permission-request">
+                    <h3 style="margin-bottom: 20px;">Nexus Messenger needs access to:</h3>
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <i class="fas fa-microphone" style="margin-right: 10px;"></i>
+                                Microphone
+                            </div>
+                            <div class="setting-control">
+                                <button class="permission-btn" onclick="requestMicrophone()">
+                                    Allow
+                                </button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <i class="fas fa-camera" style="margin-right: 10px;"></i>
+                                Camera
+                            </div>
+                            <div class="setting-control">
+                                <button class="permission-btn" onclick="requestCamera()">
+                                    Allow
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.8);">
+                        These permissions are required for voice messages and video calls.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления -->
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="notification-content">
+            <h4 id="notificationTitle">Notification</h4>
+            <p id="notificationMessage">Message</p>
+        </div>
+    </div>
+
+    <!-- Скрытые инпуты -->
+    <input type="file" id="fileUpload" multiple style="display: none;">
+
+    <script>
+        // ============ КОНСТАНТЫ И ПЕРЕМЕННЫЕ ============
+        const LANGUAGES = {
+            en: {
+                tagline: "Next generation messaging",
+                login: "Login",
+                register: "Register",
+                loginText: "Login to account",
+                registerText: "Create account",
+                welcomeTitle: "Welcome to Nexus!",
+                welcomeSubtitle: "Next generation messaging platform.<br>Chat, share files, create stickers and more.",
+                startChatText: "Start new chat",
+                feature1Title: "Real-time chat",
+                feature1Text: "Instant messaging with friends",
+                feature2Title: "Voice messages",
+                feature2Text: "Record and send audio messages",
+                feature3Title: "Sticker creation",
+                feature3Text: "Create your own sticker packs",
+                feature4Title: "Voice & video calls",
+                feature4Text: "High quality calls with friends",
+                navChats: "Chats",
+                navFriends: "Friends",
+                navStickers: "Stickers",
+                chatsTitle: "Chats",
+                createGroupText: "Group",
+                friendsTitle: "Friends",
+                addFriendText: "Add",
+                stickersTitle: "My stickers",
+                createStickerText: "Create",
+                addFriendTitle: "Add friends",
+                createStickerTitle: "Create sticker pack",
+                stickerStatsTitle: "Sticker pack statistics",
+                packNameLabel: "Pack name",
+                packAuthorLabel: "Author",
+                packAvatarLabel: "Pack avatar (optional)",
+                avatarUploadText: "Drag avatar here",
+                avatarUploadSubtext: "Or click to select file",
+                stickersLabel: "Add stickers (minimum 3)",
+                stickersUploadText: "Drag stickers here",
+                stickersUploadSubtext: "Or click to select files (PNG, JPG, GIF)",
+                createStickerPackText: "Create sticker pack",
+                typeMessage: "Type a message...",
+                recording: "Recording...",
+                voiceMessage: "Voice message",
+                playing: "Playing...",
+                fileDownload: "Download",
+                calling: "Calling...",
+                incomingCall: "Incoming call",
+                outgoingCall: "Outgoing call",
+                callEnded: "Call ended",
+                acceptCall: "Accept",
+                declineCall: "Decline",
+                endCall: "End call",
+                muteCall: "Mute",
+                unmuteCall: "Unmute",
+                settingsTitle: "Settings",
+                settingsAccount: "Account",
+                settingsAppearance: "Appearance",
+                settingsPrivacy: "Privacy",
+                settingsNotifications: "Notifications",
+                settingsVoice: "Voice Messages",
+                settingsLanguage: "Language",
+                settingsTheme: "Theme",
+                settingsDarkTheme: "Dark theme",
+                settingsLightTheme: "Light theme",
+                settingsEnglish: "English",
+                settingsRussian: "Russian",
+                settingsMessageSound: "Message sound",
+                settingsCallSound: "Call sound",
+                settingsAutoPlay: "Auto-play voice messages",
+                settingsVoiceQuality: "Voice quality",
+                settingsQualityLow: "Low",
+                settingsQualityMedium: "Medium",
+                settingsQualityHigh: "High",
+                settingsVoiceStyle: "Voice message style",
+                settingsStyleModern: "Modern",
+                settingsStyleClassic: "Classic",
+                settingsProfileVisibility: "Profile visibility",
+                settingsVisibleToAll: "Visible to all",
+                settingsVisibleToFriends: "Visible to friends only",
+                settingsLastSeen: "Last seen",
+                settingsShowLastSeen: "Show last seen",
+                settingsHideLastSeen: "Hide last seen",
+                logoutConfirm: "Are you sure you want to logout?",
+                logoutYes: "Yes, logout",
+                logoutNo: "Cancel",
+                noMessages: "No messages yet",
+                startConversation: "Start the conversation!",
+                noChats: "No chats yet",
+                noFriends: "No friends yet",
+                addFirstFriend: "Add your first friend",
+                noStickers: "No stickers yet",
+                createFirstPack: "Create your first sticker pack"
+            },
+            ru: {
+                tagline: "Мессенджер нового поколения",
+                login: "Вход",
+                register: "Регистрация",
+                loginText: "Войти в аккаунт",
+                registerText: "Создать аккаунт",
+                welcomeTitle: "Добро пожаловать в Nexus!",
+                welcomeSubtitle: "Платформа для общения нового поколения.<br>Общайтесь, обменивайтесь файлами, создавайте стикеры и многое другое.",
+                startChatText: "Начать новый чат",
+                feature1Title: "Чат в реальном времени",
+                feature1Text: "Мгновенная отправка сообщений",
+                feature2Title: "Голосовые сообщения",
+                feature2Text: "Записывайте и отправляйте аудиосообщения",
+                feature3Title: "Создание стикеров",
+                feature3Text: "Создавайте свои собственные стикерпаки",
+                feature4Title: "Голосовые и видео звонки",
+                feature4Text: "Высококачественные звонки с друзьями",
+                navChats: "Чаты",
+                navFriends: "Друзья",
+                navStickers: "Стикеры",
+                chatsTitle: "Чаты",
+                createGroupText: "Группа",
+                friendsTitle: "Друзья",
+                addFriendText: "Добавить",
+                stickersTitle: "Мои стикеры",
+                createStickerText: "Создать",
+                addFriendTitle: "Добавить друзей",
+                createStickerTitle: "Создать стикерпак",
+                stickerStatsTitle: "Статистика стикерпака",
+                packNameLabel: "Название пака",
+                packAuthorLabel: "Автор",
+                packAvatarLabel: "Аватарка пака (опционально)",
+                avatarUploadText: "Перетащите аватарку сюда",
+                avatarUploadSubtext: "Или нажмите для выбора файла",
+                stickersLabel: "Добавьте стикеры (минимум 3)",
+                stickersUploadText: "Перетащите стикеры сюда",
+                stickersUploadSubtext: "Или нажмите для выбора файлов (PNG, JPG, GIF)",
+                createStickerPackText: "Создать стикерпак",
+                typeMessage: "Написать сообщение...",
+                recording: "Запись...",
+                voiceMessage: "Голосовое сообщение",
+                playing: "Воспроизведение...",
+                fileDownload: "Скачать",
+                calling: "Звонок...",
+                incomingCall: "Входящий звонок",
+                outgoingCall: "Исходящий звонок",
+                callEnded: "Звонок завершен",
+                acceptCall: "Принять",
+                declineCall: "Отклонить",
+                endCall: "Завершить",
+                muteCall: "Выключить звук",
+                unmuteCall: "Включить звук",
+                settingsTitle: "Настройки",
+                settingsAccount: "Аккаунт",
+                settingsAppearance: "Внешний вид",
+                settingsPrivacy: "Приватность",
+                settingsNotifications: "Уведомления",
+                settingsVoice: "Голосовые сообщения",
+                settingsLanguage: "Язык",
+                settingsTheme: "Тема",
+                settingsDarkTheme: "Темная тема",
+                settingsLightTheme: "Светлая тема",
+                settingsEnglish: "Английский",
+                settingsRussian: "Русский",
+                settingsMessageSound: "Звук сообщений",
+                settingsCallSound: "Звук звонков",
+                settingsAutoPlay: "Автовоспроизведение голосовых",
+                settingsVoiceQuality: "Качество голоса",
+                settingsQualityLow: "Низкое",
+                settingsQualityMedium: "Среднее",
+                settingsQualityHigh: "Высокое",
+                settingsVoiceStyle: "Стиль голосовых сообщений",
+                settingsStyleModern: "Современный",
+                settingsStyleClassic: "Классический",
+                settingsProfileVisibility: "Видимость профиля",
+                settingsVisibleToAll: "Виден всем",
+                settingsVisibleToFriends: "Только друзьям",
+                settingsLastSeen: "Был(а) в сети",
+                settingsShowLastSeen: "Показывать",
+                settingsHideLastSeen: "Скрыть",
+                logoutConfirm: "Вы уверены, что хотите выйти?",
+                logoutYes: "Да, выйти",
+                logoutNo: "Отмена",
+                noMessages: "Пока нет сообщений",
+                startConversation: "Начните диалог первым!",
+                noChats: "Пока нет чатов",
+                noFriends: "Пока нет друзей",
+                addFirstFriend: "Добавьте первого друга",
+                noStickers: "Пока нет стикеров",
+                createFirstPack: "Создайте свой первый стикерпак"
+            }
+        };
+
+        const EMOJIS = ['😀', '😂', '😍', '😎', '😜', '😢', '😡', '👍', '👎', '❤️', '🔥', '🌟', '🎉', '🤔', '👀', '🙏', '💯', '✨', '🎯', '🏆', '🥰', '😘', '🥳', '😇', '🤩', '😋', '🤪', '😴', '🥺', '🤯'];
+
+        let currentUser = null;
+        let currentChat = null;
+        let users = [];
+        let chats = [];
+        let friends = [];
+        let blockedUsers = [];
+        let friendRequests = [];
+        let messages = {};
+        let stickerPacks = {};
+        let currentLanguage = 'en';
+        let currentTheme = 'dark';
+        let isRecording = false;
+        let recordingInterval = null;
+        let recordingTime = 0;
+        let selectedSection = 'chats';
+        let isCallActive = false;
+        let callInterval = null;
+        let callTime = 0;
+        let currentCall = null;
+        let voiceMessages = {};
+        let voiceStyle = 'modern'; // 'modern' or 'classic'
+        let autoPlayVoice = true;
+        let voiceQuality = 'high';
+        let realTimeInterval = null;
+
+        // ============ DOM ЭЛЕМЕНТЫ ============
+        // Аутентификация
+        const authContainer = document.getElementById('authContainer');
+        const appContainer = document.getElementById('appContainer');
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginButton = document.getElementById('loginButton');
+        const registerButton = document.getElementById('registerButton');
+        const tagline = document.getElementById('tagline');
+
+        // Язык и тема
+        const langBtn = document.getElementById('langBtn');
+        const themeBtn = document.getElementById('themeBtn');
+        const langText = document.getElementById('langText');
+
+        // Основной интерфейс
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const chatContainer = document.getElementById('chatContainer');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        // Чат
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const messagesWrapper = document.getElementById('messagesWrapper');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const inputContainer = document.getElementById('inputContainer');
+
+        // Кнопки действий
+        const newChatButton = document.getElementById('newChatButton');
+        const voiceCallButton = document.getElementById('voiceCallButton');
+        const videoCallButton = document.getElementById('videoCallButton');
+        const friendsButton = document.getElementById('friendsButton');
+        const settingsButton = document.getElementById('settingsButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const startChatWelcome = document.getElementById('startChatWelcome');
+
+        // Панели
+        const emojiPanel = document.getElementById('emojiPanel');
+        const stickerPanel = document.getElementById('stickerPanel');
+        const emojiButton = document.getElementById('emojiButton');
+        const stickerButton = document.getElementById('stickerButton');
+
+        // Голосовые сообщения
+        const voiceMessageButton = document.getElementById('voiceMessageButton');
+
+        // Файлы
+        const attachFileButton = document.getElementById('attachFileButton');
+        const fileUpload = document.getElementById('fileUpload');
+
+        // Звонки
+        const callContainer = document.getElementById('callContainer');
+        const acceptCall = document.getElementById('acceptCall');
+        const declineCall = document.getElementById('declineCall');
+        const endCall = document.getElementById('endCall');
+        const muteCall = document.getElementById('muteCall');
+        const callStatus = document.getElementById('callStatus');
+        const callTimer = document.getElementById('callTimer');
+
+        // Модальные окна
+        const addFriendModal = document.getElementById('addFriendModal');
+        const createStickerPackModal = document.getElementById('createStickerPackModal');
+        const stickerStatsModal = document.getElementById('stickerStatsModal');
+        const settingsModal = document.getElementById('settingsModal');
+        const logoutModal = document.getElementById('logoutModal');
+        const permissionModal = document.getElementById('permissionModal');
+
+        const closeAddFriend = document.getElementById('closeAddFriend');
+        const closeCreateSticker = document.getElementById('closeCreateSticker');
+        const closeStickerStats = document.getElementById('closeStickerStats');
+        const closeSettingsModal = document.getElementById('closeSettingsModal');
+        const closeLogoutModal = document.getElementById('closeLogoutModal');
+        const cancelLogout = document.getElementById('cancelLogout');
+        const confirmLogout = document.getElementById('confirmLogout');
+
+        // Формы
+        const addFriendButton = document.getElementById('addFriendButton');
+        const createStickerPackButton = document.getElementById('createStickerPackButton');
+        const stickerPackForm = document.getElementById('stickerPackForm');
+        const avatarUploadArea = document.getElementById('avatarUploadArea');
+        const avatarUpload = document.getElementById('avatarUpload');
+        const stickersUploadArea = document.getElementById('stickersUploadArea');
+        const stickersUpload = document.getElementById('stickersUpload');
+
+        // Уведомления
+        const notification = document.getElementById('notification');
+        const friendRequestsBadge = document.getElementById('friendRequestsBadge');
+
+        // Настройки табы
+        const settingsTabs = document.getElementById('settingsTabs');
+        const settingsModalContent = document.getElementById('settingsModalContent');
+
+        // ============ УТИЛИТЫ ============
+        function t(key) {
+            return LANGUAGES[currentLanguage][key] || key;
+        }
+
+        function updateTexts() {
+            // Обновляем все тексты
+            document.querySelectorAll('[id$="Text"], [id$="Title"], [id$="Label"]').forEach(el => {
+                const id = el.id;
+                if (t(id)) {
+                    if (el.tagName === 'SPAN' || el.tagName === 'DIV' || el.tagName === 'P' || el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'H4') {
+                        el.innerHTML = t(id);
+                    } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = t(id);
+                    }
+                }
+            });
+            
+            // Обновляем кнопки
+            document.querySelectorAll('.section-action span').forEach(span => {
+                const parent = span.closest('button');
+                if (parent.id === 'createGroupButton') {
+                    span.textContent = t('createGroupText');
+                } else if (parent.id === 'addFriendButton') {
+                    span.textContent = t('addFriendText');
+                } else if (parent.id === 'createStickerPackButton') {
+                    span.textContent = t('createStickerText');
+                }
+            });
+            
+            // Обновляем табы аутентификации
+            if (loginTab) loginTab.textContent = t('login');
+            if (registerTab) registerTab.textContent = t('register');
+            if (tagline) tagline.textContent = t('tagline');
+            
+            // Обновляем placeholder поля ввода
+            if (messageInput) messageInput.placeholder = t('typeMessage');
+            
+            // Обновляем текст языка
+            if (langText) langText.textContent = currentLanguage.toUpperCase();
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString(currentLanguage === 'ru' ? 'ru-RU' : 'en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            if (date.toDateString() === today.toDateString()) {
+                return currentLanguage === 'ru' ? 'Сегодня' : 'Today';
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return currentLanguage === 'ru' ? 'Вчера' : 'Yesterday';
+            } else {
+                return date.toLocaleDateString(currentLanguage === 'ru' ? 'ru-RU' : 'en-US', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+                });
+            }
+        }
+
+        function getGradientColor(name) {
+            const colors = [
+                'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                'linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%)',
+                'linear-gradient(135deg, #10B981 0%, #0EA5E9 100%)',
+                'linear-gradient(135deg, #F59E0B 0%, #EC4899 100%)',
+                'linear-gradient(135deg, #3B82F6 0%, #10B981 100%)'
+            ];
+            const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            return colors[hash % colors.length];
+        }
+
+        function showNotification(title, message, type = 'info') {
+            notification.className = `notification ${type}`;
+            document.getElementById('notificationTitle').textContent = title;
+            document.getElementById('notificationMessage').textContent = message;
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        function updateBadges() {
+            const pendingRequests = friendRequests.filter(r => r.status === 'pending' && r.to === currentUser.id).length;
+            const unreadChats = chats.reduce((total, chat) => total + (chat.unreadCount || 0), 0);
+            
+            if (pendingRequests > 0) {
+                friendRequestsBadge.textContent = pendingRequests;
+                friendRequestsBadge.style.display = 'flex';
+                document.getElementById('navFriendsBadge').textContent = pendingRequests;
+                document.getElementById('navFriendsBadge').style.display = 'flex';
+            } else {
+                friendRequestsBadge.style.display = 'none';
+                document.getElementById('navFriendsBadge').style.display = 'none';
+            }
+            
+            if (unreadChats > 0) {
+                document.getElementById('unreadChatsBadge').textContent = unreadChats;
+                document.getElementById('unreadChatsBadge').style.display = 'flex';
+            } else {
+                document.getElementById('unreadChatsBadge').style.display = 'none';
+            }
+        }
+
+        // ============ ЯЗЫК И ТЕМА ============
+        langBtn.addEventListener('click', () => {
+            currentLanguage = currentLanguage === 'en' ? 'ru' : 'en';
+            langText.textContent = currentLanguage.toUpperCase();
+            updateTexts();
+            saveSettings();
+            
+            if (settingsModal.classList.contains('active')) {
+                loadSettingsContent();
+            }
+        });
+
+        themeBtn.addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            themeBtn.innerHTML = currentTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+            saveSettings();
+        });
+
+        function saveSettings() {
+            if (currentUser) {
+                const settings = JSON.parse(localStorage.getItem(`nexus_settings_${currentUser.id}`) || '{}');
+                settings.language = currentLanguage;
+                settings.theme = currentTheme;
+                settings.voiceStyle = voiceStyle;
+                settings.autoPlayVoice = autoPlayVoice;
+                settings.voiceQuality = voiceQuality;
+                localStorage.setItem(`nexus_settings_${currentUser.id}`, JSON.stringify(settings));
+            }
+        }
+
+        function loadSettings() {
+            if (currentUser) {
+                const settings = JSON.parse(localStorage.getItem(`nexus_settings_${currentUser.id}`) || '{}');
+                currentLanguage = settings.language || 'en';
+                currentTheme = settings.theme || 'dark';
+                voiceStyle = settings.voiceStyle || 'modern';
+                autoPlayVoice = settings.autoPlayVoice !== false;
+                voiceQuality = settings.voiceQuality || 'high';
+                
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                langText.textContent = currentLanguage.toUpperCase();
+                themeBtn.innerHTML = currentTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                
+                updateTexts();
+            }
+        }
+
+        // ============ АУТЕНТИФИКАЦИЯ ============
+        loginTab.addEventListener('click', () => switchAuthTab('login'));
+        registerTab.addEventListener('click', () => switchAuthTab('register'));
+
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.style.display = 'flex';
+                registerForm.style.display = 'none';
+            } else {
+                registerTab.classList.add('active');
+                loginTab.classList.remove('active');
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'flex';
+            }
+        }
+
+        // Переключение видимости пароля
+        document.getElementById('loginPasswordToggle').addEventListener('click', function() {
+            const input = document.getElementById('loginPassword');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+
+        document.getElementById('registerPasswordToggle').addEventListener('click', function() {
+            const input = document.getElementById('registerPassword');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+
+        // Вход
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showNotification('Error', 'Please fill all fields', 'error');
+                return;
+            }
+            
+            loginButton.innerHTML = '<div class="loading"></div>';
+            loginButton.disabled = true;
+            
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    loginUser(user);
+                } else {
+                    showNotification('Error', 'Invalid email or password', 'error');
+                    loginButton.innerHTML = '<span id="loginText">Login to account</span>';
+                    loginButton.disabled = false;
+                    updateTexts();
+                }
+            }, 1000);
+        });
+
+        // Регистрация
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (!name || !email || !password || !confirmPassword) {
+                showNotification('Error', 'Please fill all fields', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showNotification('Error', 'Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showNotification('Error', 'Passwords do not match', 'error');
+                return;
+            }
+            
+            registerButton.innerHTML = '<div class="loading"></div>';
+            registerButton.disabled = true;
+            
+            setTimeout(() => {
+                let users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
+                
+                if (users.some(u => u.email === email)) {
+                    showNotification('Error', 'User with this email already exists', 'error');
+                    registerButton.innerHTML = '<span id="registerText">Create account</span>';
+                    registerButton.disabled = false;
+                    updateTexts();
+                    return;
+                }
+                
+                const newUser = {
+                    id: generateId(),
+                    name: name,
+                    email: email,
+                    password: password,
+                    avatarColor: getGradientColor(name),
+                    status: 'online',
+                    createdAt: new Date().toISOString(),
+                    lastSeen: new Date().toISOString()
+                };
+                
+                users.push(newUser);
+                localStorage.setItem('nexus_users', JSON.stringify(users));
+                
+                initializeUserData(newUser);
+                loginUser(newUser);
+            }, 1500);
+        });
+
+        function initializeUserData(user) {
+            localStorage.setItem(`nexus_friends_${user.id}`, JSON.stringify([]));
+            localStorage.setItem(`nexus_blocked_${user.id}`, JSON.stringify([]));
+            localStorage.setItem(`nexus_friend_requests_${user.id}`, JSON.stringify([]));
+            localStorage.setItem(`nexus_chats_${user.id}`, JSON.stringify([]));
+            
+            // Создать тестовый стикер пак
+            const defaultStickerPack = {
+                id: 'default',
+                name: 'Default Pack',
+                author: 'Nexus Team',
+                avatar: null,
+                stickers: EMOJIS.slice(0, 15).map((emoji, i) => ({
+                    id: `sticker_${i}`,
+                    emoji: emoji,
+                    type: 'emoji',
+                    usage: Math.floor(Math.random() * 100)
+                })),
+                createdAt: new Date().toISOString(),
+                installs: 1250,
+                ownerId: 'system'
+            };
+            
+            localStorage.setItem(`nexus_sticker_packs_${user.id}`, JSON.stringify([defaultStickerPack]));
+            
+            // Настройки по умолчанию
+            const defaultSettings = {
+                language: 'en',
+                theme: 'dark',
+                notifications: true,
+                messageSound: true,
+                callSound: true,
+                lastSeen: 'everyone',
+                profilePhoto: 'everyone',
+                voiceStyle: 'modern',
+                autoPlayVoice: true,
+                voiceQuality: 'high'
+            };
+            
+            localStorage.setItem(`nexus_settings_${user.id}`, JSON.stringify(defaultSettings));
+        }
+
+        function loginUser(user) {
+            currentUser = user;
+            localStorage.setItem('nexus_current_user', JSON.stringify(user));
+            
+            loadUserData();
+            loadSettings();
+            
+            authContainer.style.opacity = '0';
+            setTimeout(() => {
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+                showNotification('Welcome!', `Welcome back, ${user.name}!`, 'success');
+                
+                // Запросить разрешения
+                setTimeout(() => {
+                    requestPermissions();
+                }, 1000);
+                
+                // Запустить обновление в реальном времени
+                startRealTimeUpdates();
+            }, 500);
+        }
+
+        function loadUserData() {
+            users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
+            friends = JSON.parse(localStorage.getItem(`nexus_friends_${currentUser.id}`) || '[]');
+            blockedUsers = JSON.parse(localStorage.getItem(`nexus_blocked_${currentUser.id}`) || '[]');
+            friendRequests = JSON.parse(localStorage.getItem(`nexus_friend_requests_${currentUser.id}`) || '[]');
+            chats = JSON.parse(localStorage.getItem(`nexus_chats_${currentUser.id}`) || '[]');
+            messages = JSON.parse(localStorage.getItem('nexus_messages') || '{}');
+            stickerPacks = JSON.parse(localStorage.getItem(`nexus_sticker_packs_${currentUser.id}`) || []);
+            
+            updateUserProfile();
+            updateFriendsList();
+            updateChatsList();
+            updateStickerPacks();
+            updateBadges();
+            
+            initEmojiPanel();
+        }
+
+        // ============ ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ============
+        function updateUserProfile() {
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('userAvatarText').textContent = currentUser.name.charAt(0);
+            document.getElementById('userAvatar').style.background = currentUser.avatarColor;
+        }
+
+        function updateFriendsList() {
+            const friendList = document.getElementById('friendList');
+            friendList.innerHTML = '';
+            
+            if (friends.length === 0) {
+                friendList.innerHTML = `
+                    <div class="friend-item" style="justify-content: center; color: var(--text-secondary);">
+                        <i class="fas fa-user-friends" style="margin-right: 8px;"></i>
+                        ${t('noFriends')}
+                    </div>
+                `;
+                return;
+            }
+            
+            friends.forEach(friendId => {
+                const friend = users.find(u => u.id === friendId);
+                if (!friend || blockedUsers.includes(friendId)) return;
+                
+                const friendItem = document.createElement('div');
+                friendItem.className = 'friend-item';
+                friendItem.innerHTML = `
+                    <div class="item-avatar" style="background: ${friend.avatarColor}">
+                        ${friend.name.charAt(0)}
+                        <div class="user-status ${friend.status === 'online' ? 'status-online' : 'status-offline'}"></div>
+                    </div>
+                    <div class="item-info">
+                        <h4>${friend.name}</h4>
+                        <p>${friend.status === 'online' ? (currentLanguage === 'ru' ? 'В сети' : 'Online') : (currentLanguage === 'ru' ? 'Не в сети' : 'Offline')}</p>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="chat-action-btn" title="Chat" onclick="startChatWithFriend('${friend.id}')">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                    </div>
+                `;
+                friendList.appendChild(friendItem);
+            });
+        }
+
+        function updateChatsList() {
+            const chatList = document.getElementById('chatList');
+            chatList.innerHTML = '';
+            
+            if (chats.length === 0) {
+                chatList.innerHTML = `
+                    <div class="chat-item" style="justify-content: center; color: var(--text-secondary);">
+                        <i class="fas fa-comments" style="margin-right: 8px;"></i>
+                        ${t('noChats')}
+                    </div>
+                `;
+                return;
+            }
+            
+            chats.forEach(chat => {
+                const otherUserId = chat.participants?.find(id => id !== currentUser.id);
+                const otherUser = users.find(u => u.id === otherUserId);
+                if (otherUserId && blockedUsers.includes(otherUserId)) return;
+                
+                const chatItem = document.createElement('div');
+                chatItem.className = `chat-item ${currentChat && currentChat.id === chat.id ? 'active' : ''}`;
+                chatItem.onclick = () => selectChat(chat);
+                
+                const chatMessages = messages[chat.id] || [];
+                const lastMessage = chatMessages.length > 0 ? chatMessages[chatMessages.length - 1] : null;
+                let lastMessageText = t('noMessages');
+                
+                if (lastMessage) {
+                    if (lastMessage.type === 'text') {
+                        lastMessageText = lastMessage.text.length > 30 ? lastMessage.text.substring(0, 30) + '...' : lastMessage.text;
+                    } else if (lastMessage.type === 'voice') {
+                        lastMessageText = '🎤 ' + t('voiceMessage');
+                    } else if (lastMessage.type === 'file') {
+                        lastMessageText = '📎 ' + (lastMessage.fileName || 'File');
+                    } else if (lastMessage.type === 'sticker') {
+                        lastMessageText = '🎨 ' + (currentLanguage === 'ru' ? 'Стикер' : 'Sticker');
+                    }
+                }
+                
+                chatItem.innerHTML = `
+                    <div class="item-avatar" style="background: ${chat.avatarColor || (otherUser?.avatarColor || getGradientColor(chat.name))}">
+                        ${chat.name.charAt(0)}
+                    </div>
+                    <div class="item-info">
+                        <h4>${chat.name}</h4>
+                        <p>${lastMessageText}</p>
+                    </div>
+                    ${chat.unreadCount > 0 ? `<div class="badge">${chat.unreadCount}</div>` : ''}
+                    <div class="chat-actions">
+                        <button class="chat-action-btn" title="Delete chat" onclick="deleteChatPrompt('${chat.id}', event)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                chatList.appendChild(chatItem);
+            });
+        }
+
+        function updateStickerPacks() {
+            const stickerPackList = document.getElementById('stickerPackList');
+            stickerPackList.innerHTML = '';
+            
+            if (stickerPacks.length === 0) {
+                stickerPackList.innerHTML = `
+                    <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
+                        <i class="fas fa-sticky-note" style="font-size: 32px; margin-bottom: 12px;"></i>
+                        <div>${t('noStickers')}</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            stickerPacks.forEach(pack => {
+                const packElement = document.createElement('div');
+                packElement.className = 'sticker-pack';
+                packElement.innerHTML = `
+                    <div class="sticker-pack-header">
+                        <div class="sticker-pack-avatar">
+                            ${pack.avatar ? `<img src="${pack.avatar}" alt="${pack.name}">` : pack.name.charAt(0)}
+                        </div>
+                        <div class="sticker-pack-info">
+                            <h4>${pack.name}</h4>
+                            <p>${currentLanguage === 'ru' ? 'Автор:' : 'Author:'} ${pack.author}</p>
+                        </div>
+                        <div class="sticker-pack-stats">
+                            <div class="stat" onclick="showStickerStats('${pack.id}')">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>${pack.installs || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sticker-grid">
+                        ${pack.stickers.slice(0, 4).map(sticker => `
+                            <div class="sticker-container">
+                                <div class="sticker-item" onclick="sendSticker('${sticker.id || sticker.emoji}', '${pack.id}')">
+                                    ${sticker.emoji ? `<div style="font-size: 48px;">${sticker.emoji}</div>` : 
+                                      sticker.url ? `<img src="${sticker.url}" alt="Sticker" style="max-width: 100px; max-height: 100px; object-fit: contain;">` : '🎨'}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                stickerPackList.appendChild(packElement);
+            });
+        }
+
+        // ============ НАВИГАЦИЯ ============
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                selectedSection = item.dataset.section;
+                document.querySelectorAll('.sidebar-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                document.getElementById(`${selectedSection}Section`).style.display = 'block';
+                
+                if (selectedSection === 'friends') {
+                    updateFriendsList();
+                } else if (selectedSection === 'stickers') {
+                    updateStickerPacks();
+                }
+            });
+        });
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            chatContainer.classList.toggle('sidebar-active');
+        });
+
+        // ============ ЧАТЫ ============
+        function startChatWithFriend(friendId) {
+            const friend = users.find(u => u.id === friendId);
+            if (!friend) return;
+            
+            let existingChat = chats.find(chat => 
+                chat.type === 'private' && 
+                chat.participants?.includes(friendId)
+            );
+            
+            if (existingChat) {
+                selectChat(existingChat);
+                return;
+            }
+            
+            const newChat = {
+                id: generateId(),
+                name: friend.name,
+                type: 'private',
+                avatarColor: friend.avatarColor,
+                participants: [currentUser.id, friendId],
+                createdAt: new Date().toISOString(),
+                unreadCount: 0
+            };
+            
+            chats.push(newChat);
+            localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
+            
+            updateChatsList();
+            selectChat(newChat);
+            
+            showNotification('Chat created', `${currentLanguage === 'ru' ? 'Чат создан с' : 'Chat created with'} ${friend.name}`, 'success');
+        }
+
+        function selectChat(chat) {
+            currentChat = chat;
+            
+            const otherUserId = chat.participants?.find(id => id !== currentUser.id);
+            const otherUser = otherUserId ? users.find(u => u.id === otherUserId) : null;
+            
+            document.getElementById('currentChatName').textContent = chat.name;
+            document.getElementById('currentChatAvatar').textContent = chat.name.charAt(0);
+            document.getElementById('currentChatAvatar').style.background = chat.avatarColor || (otherUser?.avatarColor || getGradientColor(chat.name));
+            document.getElementById('currentChatStatus').textContent = otherUser?.status === 'online' ? 
+                (currentLanguage === 'ru' ? 'В сети' : 'Online') : 
+                (currentLanguage === 'ru' ? 'Не в сети' : 'Offline');
+            
+            welcomeScreen.style.display = 'none';
+            messagesWrapper.style.display = 'flex';
+            inputContainer.style.display = 'block';
+            
+            loadMessages(chat.id);
+            
+            if (chat.unreadCount > 0) {
+                chat.unreadCount = 0;
+                localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
+                updateChatsList();
+            }
+            
+            if (window.innerWidth < 768) {
+                sidebar.classList.remove('active');
+                chatContainer.classList.remove('sidebar-active');
+            }
+        }
+
+        function loadMessages(chatId) {
+            messagesWrapper.innerHTML = '';
+            
+            const chatMessages = messages[chatId] || [];
+            
+            if (chatMessages.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.style.cssText = 'text-align: center; padding: 60px; color: var(--text-secondary);';
+                emptyState.innerHTML = `
+                    <div style="font-size: 64px; margin-bottom: 24px;">💬</div>
+                    <div style="font-size: 18px; margin-bottom: 16px;">
+                        ${t('noMessages')}
+                    </div>
+                    <div style="font-size: 14px;">
+                        ${t('startConversation')}
+                    </div>
+                `;
+                messagesWrapper.appendChild(emptyState);
+                return;
+            }
+            
+            let lastDate = null;
+            
+            chatMessages.forEach(msg => {
+                const messageDate = formatDate(msg.timestamp);
+                
+                if (messageDate !== lastDate) {
+                    const dateElement = document.createElement('div');
+                    dateElement.className = 'message-date';
+                    dateElement.textContent = messageDate;
+                    messagesWrapper.appendChild(dateElement);
+                    lastDate = messageDate;
+                }
+                
+                const messageElement = createMessageElement(msg);
+                messagesWrapper.appendChild(messageElement);
+            });
+            
+            messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+        }
+
+        function createMessageElement(msg) {
+            const message = document.createElement('div');
+            const isOutgoing = msg.senderId === currentUser.id;
+            const sender = users.find(u => u.id === msg.senderId) || { name: 'Unknown' };
+            
+            message.className = `message ${isOutgoing ? 'outgoing' : ''}`;
+            
+            let content = '';
+            
+            if (msg.type === 'text') {
+                content = `
+                    <div class="message-bubble">
+                        ${msg.text}
+                    </div>
+                `;
+            } else if (msg.type === 'emoji') {
+                content = `
+                    <div class="emoji-message">
+                        ${msg.text}
+                    </div>
+                `;
+            } else if (msg.type === 'voice') {
+                if (voiceStyle === 'modern') {
+                    content = `
+                        <div class="voice-message" onclick="playVoiceMessage('${msg.id}')">
+                            <button class="voice-play-button">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <div class="voice-waveform">
+                                <div class="voice-wave" id="wave-${msg.id}"></div>
+                            </div>
+                            <div class="voice-duration">${msg.duration || '0:30'}</div>
+                        </div>
+                    `;
+                } else {
+                    content = `
+                        <div style="background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 20px; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 20px; cursor: pointer;" onclick="playVoiceMessage('${msg.id}')">
+                            <button style="width: 50px; height: 50px; border-radius: 50%; background: var(--gradient); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <div style="flex: 1; height: 40px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; overflow: hidden; position: relative;">
+                                <div style="position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--gradient); transition: width 0.1s linear;" id="wave-${msg.id}"></div>
+                            </div>
+                            <div style="color: var(--text-secondary); font-size: 14px; font-weight: 600; min-width: 50px; text-align: right;">${msg.duration || '0:30'}</div>
+                        </div>
+                    `;
+                }
+            } else if (msg.type === 'file') {
+                content = `
+                    <div class="file-message">
+                        <div class="file-icon">
+                            <i class="fas fa-file-${msg.fileType === 'image' ? 'image' : 
+                              msg.fileType === 'video' ? 'video' : 
+                              msg.fileType === 'audio' ? 'music' : 'alt'}"></i>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">${msg.fileName || 'File'}</div>
+                            <div class="file-size">${formatFileSize(msg.fileSize)}</div>
+                        </div>
+                        <button class="file-download" onclick="downloadFile('${msg.fileName}', '${msg.content}')">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                `;
+            } else if (msg.type === 'sticker') {
+                const pack = stickerPacks.find(p => p.id === msg.packId);
+                const sticker = pack?.stickers?.find(s => s.id === msg.stickerId);
+                
+                content = `
+                    <div class="sticker-container">
+                        <div class="sticker-message">
+                            <div class="sticker-image">
+                                ${sticker?.emoji ? `<div style="font-size: 64px;">${sticker.emoji}</div>` : 
+                                  sticker?.url ? `<img src="${sticker.url}" alt="Sticker" style="max-width: 150px; max-height: 150px; object-fit: contain;">` : '🎨'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            message.innerHTML = `
+                ${!isOutgoing ? `
+                    <div class="message-avatar" style="background: ${sender.avatarColor || getGradientColor(sender.name)}">
+                        ${sender.name.charAt(0)}
+                    </div>
+                ` : ''}
+                
+                <div class="message-content">
+                    ${content}
+                    <div class="message-meta" style="padding: 4px 8px;">
+                        <span class="message-time">${formatTime(msg.timestamp)}</span>
+                    </div>
+                </div>
+            `;
+            
+            return message;
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // ============ ОТПРАВКА СООБЩЕНИЙ ============
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !currentChat) return;
+            
+            const message = {
+                id: generateId(),
+                chatId: currentChat.id,
+                senderId: currentUser.id,
+                text: text,
+                type: text.length === 1 && EMOJIS.includes(text) ? 'emoji' : 'text',
+                timestamp: new Date().toISOString(),
+                status: 'sent'
+            };
+            
+            if (!messages[currentChat.id]) messages[currentChat.id] = [];
+            messages[currentChat.id].push(message);
+            localStorage.setItem('nexus_messages', JSON.stringify(messages));
+            
+            currentChat.lastMessage = text;
+            localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
+            
+            const messageElement = createMessageElement(message);
+            
+            const emptyState = messagesWrapper.querySelector('.empty-chat');
+            if (emptyState) emptyState.remove();
+            
+            const lastDateElement = messagesWrapper.querySelector('.message-date:last-child');
+            const messageDate = formatDate(message.timestamp);
+            
+            if (!lastDateElement || lastDateElement.textContent !== messageDate) {
+                const dateElement = document.createElement('div');
+                dateElement.className = 'message-date';
+                dateElement.textContent = messageDate;
+                messagesWrapper.appendChild(dateElement);
+            }
+            
+            messagesWrapper.appendChild(messageElement);
+            messageInput.value = '';
+            autoResizeTextarea();
+            messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+            
+            updateChatsList();
+            
+            // Убраны автоматические ответы
+        }
+
+        // ============ ЭМОДЗИ ============
+        function initEmojiPanel() {
+            emojiPanel.innerHTML = '';
+            EMOJIS.forEach(emoji => {
+                const emojiItem = document.createElement('div');
+                emojiItem.className = 'emoji-item';
+                emojiItem.textContent = emoji;
+                emojiItem.onclick = () => insertEmoji(emoji);
+                emojiPanel.appendChild(emojiItem);
+            });
+        }
+
+        emojiButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            stickerPanel.classList.remove('active');
+            emojiPanel.classList.toggle('active');
+            
+            const rect = emojiButton.getBoundingClientRect();
+            emojiPanel.style.left = `${rect.left - 300}px`;
+            emojiPanel.style.bottom = `${window.innerHeight - rect.top + 60}px`;
+        });
+
+        function insertEmoji(emoji) {
+            messageInput.value += emoji;
+            messageInput.focus();
+            autoResizeTextarea();
+            emojiPanel.classList.remove('active');
+        }
+
+        // ============ ГОЛОСОВЫЕ СООБЩЕНИЯ ============
+        let isVoiceRecording = false;
+        let voiceRecordingInterval = null;
+        let voiceRecordingTime = 0;
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        voiceMessageButton.addEventListener('mousedown', startVoiceRecording);
+        voiceMessageButton.addEventListener('touchstart', startVoiceRecording);
+        document.addEventListener('mouseup', stopVoiceRecording);
+        document.addEventListener('touchend', stopVoiceRecording);
+
+        function requestMicrophone() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    showNotification('Success', 'Microphone access granted', 'success');
+                    permissionModal.style.display = 'none';
+                })
+                .catch(err => {
+                    showNotification('Error', 'Microphone access denied', 'error');
+                });
+        }
+
+        function requestCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    showNotification('Success', 'Camera access granted', 'success');
+                    permissionModal.style.display = 'none';
+                })
+                .catch(err => {
+                    showNotification('Error', 'Camera access denied', 'error');
+                });
+        }
+
+        function requestPermissions() {
+            // Проверяем разрешения
+            navigator.permissions.query({ name: 'microphone' }).then(permissionStatus => {
+                if (permissionStatus.state !== 'granted') {
+                    permissionModal.style.display = 'flex';
+                }
+            });
+        }
+
+        async function startVoiceRecording(e) {
+            e.preventDefault();
+            if (isVoiceRecording || !currentChat) return;
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    
+                    const duration = `${Math.floor(voiceRecordingTime / 60)}:${(voiceRecordingTime % 60).toString().padStart(2, '0')}`;
+                    const voiceMessage = {
+                        id: generateId(),
+                        chatId: currentChat.id,
+                        senderId: currentUser.id,
+                        type: 'voice',
+                        duration: duration,
+                        audioUrl: audioUrl,
+                        timestamp: new Date().toISOString(),
+                        status: 'sent'
+                    };
+                    
+                    voiceMessages[voiceMessage.id] = audioUrl;
+                    
+                    if (!messages[currentChat.id]) messages[currentChat.id] = [];
+                    messages[currentChat.id].push(voiceMessage);
+                    localStorage.setItem('nexus_messages', JSON.stringify(messages));
+                    
+                    const messageElement = createMessageElement(voiceMessage);
+                    messagesWrapper.appendChild(messageElement);
+                    messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+                    
+                    updateChatsList();
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                mediaRecorder.start();
+                isVoiceRecording = true;
+                voiceRecordingTime = 0;
+                showNotification(t('recording'), t('voiceMessage'), 'info');
+                
+                voiceRecordingInterval = setInterval(() => {
+                    voiceRecordingTime++;
+                }, 1000);
+                
+                voiceMessageButton.innerHTML = '<i class="fas fa-stop"></i>';
+                voiceMessageButton.style.color = 'var(--danger)';
+                
+            } catch (err) {
+                showNotification('Error', 'Microphone access required', 'error');
+                permissionModal.style.display = 'flex';
+            }
+        }
+
+        function stopVoiceRecording() {
+            if (!isVoiceRecording) return;
+            
+            clearInterval(voiceRecordingInterval);
+            isVoiceRecording = false;
+            
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            
+            voiceMessageButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            voiceMessageButton.style.color = '';
+        }
+
+        function playVoiceMessage(messageId) {
+            const wave = document.getElementById(`wave-${messageId}`);
+            if (wave) {
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 2;
+                    wave.style.width = `${progress}%`;
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            wave.style.width = '0%';
+                        }, 500);
+                    }
+                }, 100);
+            }
+            
+            if (autoPlayVoice && voiceMessages[messageId]) {
+                const audio = new Audio(voiceMessages[messageId]);
+                audio.play();
+            }
+        }
+
+        // ============ ФАЙЛЫ ============
+        attachFileButton.addEventListener('click', () => fileUpload.click());
+
+        fileUpload.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (!files.length || !currentChat) return;
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileType = file.type.split('/')[0];
+                    const fileMessage = {
+                        id: generateId(),
+                        chatId: currentChat.id,
+                        senderId: currentUser.id,
+                        type: 'file',
+                        fileType: fileType,
+                        fileName: file.name,
+                        fileSize: file.size,
+                        content: e.target.result,
+                        timestamp: new Date().toISOString(),
+                        status: 'sent'
+                    };
+                    
+                    if (!messages[currentChat.id]) messages[currentChat.id] = [];
+                    messages[currentChat.id].push(fileMessage);
+                    
+                    const messageElement = createMessageElement(fileMessage);
+                    messagesWrapper.appendChild(messageElement);
+                    messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+                    
+                    localStorage.setItem('nexus_messages', JSON.stringify(messages));
+                    updateChatsList();
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            fileUpload.value = '';
+            showNotification('Files sent', `${files.length} file(s) sent`, 'success');
+        });
+
+        function downloadFile(filename, content) {
+            const link = document.createElement('a');
+            link.href = content;
+            link.download = filename;
+            link.click();
+        }
+
+        // ============ ДРУЗЬЯ ============
+        friendsButton.addEventListener('click', openAddFriendModal);
+        addFriendButton.addEventListener('click', openAddFriendModal);
+
+        function openAddFriendModal() {
+            addFriendModal.classList.add('active');
+            updateFriendRequestsList();
+        }
+
+        closeAddFriend.addEventListener('click', () => {
+            addFriendModal.classList.remove('active');
+        });
+
+        document.getElementById('searchFriendInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (searchTerm.length < 2) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+            
+            const results = users.filter(user => 
+                user.id !== currentUser.id && 
+                !friends.includes(user.id) &&
+                !blockedUsers.includes(user.id) &&
+                (user.email.toLowerCase().includes(searchTerm) || 
+                 user.name.toLowerCase().includes(searchTerm))
+            );
+            
+            resultsDiv.innerHTML = '';
+            
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No users found</div>';
+                return;
+            }
+            
+            results.forEach(user => {
+                const existingRequest = friendRequests.find(r => 
+                    (r.from === currentUser.id && r.to === user.id) ||
+                    (r.from === user.id && r.to === currentUser.id)
+                );
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'friend-request-item';
+                resultItem.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px;';
+                
+                let buttonHtml = '';
+                if (existingRequest) {
+                    if (existingRequest.from === currentUser.id) {
+                        buttonHtml = `<button onclick="cancelFriendRequest('${existingRequest.id}')" style="background: var(--warning); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Cancel</button>`;
+                    } else {
+                        buttonHtml = `<button onclick="acceptFriendRequest('${existingRequest.id}')" style="background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-right: 8px;">Accept</button>
+                                      <button onclick="declineFriendRequest('${existingRequest.id}')" style="background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Decline</button>`;
+                    }
+                } else {
+                    buttonHtml = `<button onclick="sendFriendRequest('${user.id}')" style="background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Add Friend</button>`;
+                }
+                
+                resultItem.innerHTML = `
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: ${user.avatarColor}; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                        ${user.name.charAt(0)}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">${user.name}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">${user.email}</div>
+                    </div>
+                    ${buttonHtml}
+                `;
+                resultsDiv.appendChild(resultItem);
+            });
+        });
+
+        function updateFriendRequestsList() {
+            const requestsList = document.getElementById('friendRequestsList');
+            const incomingRequests = friendRequests.filter(r => r.status === 'pending' && r.to === currentUser.id);
+            
+            if (incomingRequests.length === 0) {
+                requestsList.innerHTML = '';
+                return;
+            }
+            
+            requestsList.innerHTML = `<h3 style="margin-bottom: 16px; font-size: 16px;">Friend Requests</h3>`;
+            
+            incomingRequests.forEach(request => {
+                const user = users.find(u => u.id === request.from);
+                if (!user) return;
+                
+                const requestItem = document.createElement('div');
+                requestItem.className = 'friend-request-item';
+                requestItem.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px;';
+                
+                requestItem.innerHTML = `
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: ${user.avatarColor}; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                        ${user.name.charAt(0)}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">${user.name}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Wants to be your friend</div>
+                    </div>
+                    <button onclick="acceptFriendRequest('${request.id}')" style="background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-right: 8px;">
+                        Accept
+                    </button>
+                    <button onclick="declineFriendRequest('${request.id}')" style="background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                        Decline
+                    </button>
+                `;
+                requestsList.appendChild(requestItem);
+            });
+        }
+
+        function sendFriendRequest(userId) {
+            const existingRequest = friendRequests.find(r => 
+                r.from === currentUser.id && 
+                r.to === userId && 
+                r.status === 'pending'
+            );
+            
+            if (existingRequest) return;
+            
+            const request = {
+                id: generateId(),
+                from: currentUser.id,
+                to: userId,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            
+            friendRequests.push(request);
+            localStorage.setItem(`nexus_friend_requests_${currentUser.id}`, JSON.stringify(friendRequests));
+            
+            const receiverRequests = JSON.parse(localStorage.getItem(`nexus_friend_requests_${userId}`) || '[]');
+            receiverRequests.push(request);
+            localStorage.setItem(`nexus_friend_requests_${userId}`, JSON.stringify(receiverRequests));
+            
+            showNotification('Friend request sent', 'Friend request sent', 'success');
+            updateFriendRequestsList();
+        }
+
+        function acceptFriendRequest(requestId) {
+            const request = friendRequests.find(r => r.id === requestId);
+            if (!request) return;
+            
+            request.status = 'accepted';
+            
+            if (!friends.includes(request.from)) {
+                friends.push(request.from);
+            }
+            
+            const friendFriends = JSON.parse(localStorage.getItem(`nexus_friends_${request.from}`) || '[]');
+            if (!friendFriends.includes(currentUser.id)) {
+                friendFriends.push(currentUser.id);
+                localStorage.setItem(`nexus_friends_${request.from}`, JSON.stringify(friendFriends));
+            }
+            
+            localStorage.setItem(`nexus_friends_${currentUser.id}`, JSON.stringify(friends));
+            localStorage.setItem(`nexus_friend_requests_${currentUser.id}`, JSON.stringify(friendRequests));
+            
+            updateFriendsList();
+            updateFriendRequestsList();
+            updateBadges();
+            
+            showNotification('Request accepted', 'User added to friends', 'success');
+        }
+
+        function declineFriendRequest(requestId) {
+            friendRequests = friendRequests.filter(r => r.id !== requestId);
+            localStorage.setItem(`nexus_friend_requests_${currentUser.id}`, JSON.stringify(friendRequests));
+            
+            updateFriendRequestsList();
+            updateBadges();
+            
+            showNotification('Request declined', 'Friend request declined', 'info');
+        }
+
+        function cancelFriendRequest(requestId) {
+            const request = friendRequests.find(r => r.id === requestId);
+            if (!request) return;
+            
+            friendRequests = friendRequests.filter(r => r.id !== requestId);
+            localStorage.setItem(`nexus_friend_requests_${currentUser.id}`, JSON.stringify(friendRequests));
+            
+            const receiverRequests = JSON.parse(localStorage.getItem(`nexus_friend_requests_${request.to}`) || '[]');
+            const updatedReceiverRequests = receiverRequests.filter(r => r.id !== requestId);
+            localStorage.setItem(`nexus_friend_requests_${request.to}`, JSON.stringify(updatedReceiverRequests));
+            
+            updateFriendRequestsList();
+            updateBadges();
+            
+            showNotification('Request cancelled', 'Friend request cancelled', 'info');
+        }
+
+        // ============ УДАЛЕНИЕ ЧАТОВ ============
+        function deleteChatPrompt(chatId, e) {
+            if (e) e.stopPropagation();
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 2000;';
+            
+            modal.innerHTML = `
+                <div class="modal" style="background: var(--card); border-radius: 20px; padding: 30px; max-width: 400px;">
+                    <h3 style="margin-bottom: 20px;">Delete Chat</h3>
+                    <div style="margin-bottom: 30px; color: var(--text-secondary);">
+                        Are you sure you want to delete this chat?
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="deleteChat('${chatId}')" style="flex: 1; background: var(--danger); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer;">
+                            Delete
+                        </button>
+                        <button onclick="this.closest('.modal-overlay').remove()" style="flex: 1; background: none; border: 1px solid var(--glass-border); color: var(--text); padding: 12px; border-radius: 10px; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function deleteChat(chatId) {
+            chats = chats.filter(chat => chat.id !== chatId);
+            localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
+            
+            if (currentChat && currentChat.id === chatId) {
+                currentChat = null;
+                welcomeScreen.style.display = 'flex';
+                messagesWrapper.style.display = 'none';
+                inputContainer.style.display = 'none';
+            }
+            
+            updateChatsList();
+            document.querySelector('.modal-overlay.active')?.remove();
+            showNotification('Chat deleted', 'Chat has been deleted', 'success');
+        }
+
+        // ============ СТИКЕРЫ ============
+        stickerButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            emojiPanel.classList.remove('active');
+            stickerPanel.classList.toggle('active');
+            
+            const rect = stickerButton.getBoundingClientRect();
+            stickerPanel.style.left = `${rect.left - 450}px`;
+            stickerPanel.style.bottom = `${window.innerHeight - rect.top + 60}px`;
+            
+            updateStickerPanel();
+        });
+
+        function updateStickerPanel() {
+            stickerPanel.innerHTML = '';
+            
+            stickerPacks.forEach(pack => {
+                const packElement = document.createElement('div');
+                packElement.className = 'sticker-pack';
+                
+                let stickersHTML = '';
+                const displayStickers = pack.stickers.slice(0, 8);
+                displayStickers.forEach(sticker => {
+                    stickersHTML += `
+                        <div class="sticker-container">
+                            <div class="sticker-item" onclick="sendSticker('${sticker.id || sticker.emoji}', '${pack.id}')">
+                                ${sticker.emoji ? `<div style="font-size: 48px;">${sticker.emoji}</div>` : 
+                                  sticker.url ? `<img src="${sticker.url}" alt="Sticker" style="max-width: 100px; max-height: 100px; object-fit: contain;">` : '🎨'}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                packElement.innerHTML = `
+                    <div class="sticker-pack-header">
+                        <div class="sticker-pack-avatar">
+                            ${pack.avatar ? `<img src="${pack.avatar}" alt="${pack.name}">` : pack.name.charAt(0)}
+                        </div>
+                        <div class="sticker-pack-info">
+                            <h4>${pack.name}</h4>
+                            <p>${pack.stickers.length} stickers</p>
+                        </div>
+                        <div class="sticker-pack-stats">
+                            <div class="stat" onclick="showStickerStats('${pack.id}')">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>${pack.installs || 0}</span>
+                            </div>
+                            ${pack.ownerId === currentUser.id ? `
+                                <div class="stat" onclick="deleteStickerPack('${pack.id}')" style="color: var(--danger);">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="sticker-grid">
+                        ${stickersHTML}
+                    </div>
+                `;
+                stickerPanel.appendChild(packElement);
+            });
+            
+            const createButton = document.createElement('div');
+            createButton.className = 'create-sticker-pack';
+            createButton.innerHTML = `
+                <div class="create-sticker-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="create-sticker-text">
+                    ${t('createStickerText')}
+                </div>
+            `;
+            createButton.onclick = () => createStickerPackModal.classList.add('active');
+            stickerPanel.appendChild(createButton);
+        }
+
+        function sendSticker(stickerId, packId) {
+            if (!currentChat) return;
+            
+            const stickerMessage = {
+                id: generateId(),
+                chatId: currentChat.id,
+                senderId: currentUser.id,
+                type: 'sticker',
+                stickerId: stickerId,
+                packId: packId,
+                timestamp: new Date().toISOString(),
+                status: 'sent'
+            };
+            
+            if (!messages[currentChat.id]) messages[currentChat.id] = [];
+            messages[currentChat.id].push(stickerMessage);
+            localStorage.setItem('nexus_messages', JSON.stringify(messages));
+            
+            const messageElement = createMessageElement(stickerMessage);
+            messagesWrapper.appendChild(messageElement);
+            messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+            
+            stickerPanel.classList.remove('active');
+            updateChatsList();
+            
+            const pack = stickerPacks.find(p => p.id === packId);
+            if (pack) {
+                pack.installs = (pack.installs || 0) + 1;
+                localStorage.setItem(`nexus_sticker_packs_${currentUser.id}`, JSON.stringify(stickerPacks));
+            }
+        }
+
+        // Создание стикер пака
+        createStickerPackButton.addEventListener('click', () => {
+            createStickerPackModal.classList.add('active');
+        });
+
+        closeCreateSticker.addEventListener('click', () => {
+            createStickerPackModal.classList.remove('active');
+            resetStickerForm();
+        });
+
+        let selectedAvatar = null;
+        let selectedStickers = [];
+
+        avatarUploadArea.addEventListener('click', () => avatarUpload.click());
+        avatarUpload.addEventListener('change', handleAvatarUpload);
+
+        stickersUploadArea.addEventListener('click', () => stickersUpload.click());
+        stickersUpload.addEventListener('change', handleStickersUpload);
+
+        function handleAvatarUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedAvatar = e.target.result;
+                document.getElementById('avatarPreview').innerHTML = `
+                    <div style="margin-top: 10px;">
+                        <div style="font-size: 14px; margin-bottom: 8px; color: var(--text);">Preview:</div>
+                        <img src="${selectedAvatar}" style="width: 100px; height: 100px; border-radius: 12px; object-fit: cover;">
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleStickersUpload(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedStickers.push({
+                        id: generateId(),
+                        url: e.target.result,
+                        name: file.name
+                    });
+                    updateStickerPreview();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updateStickerPreview() {
+            const preview = document.getElementById('stickerPreview');
+            preview.innerHTML = '';
+            
+            selectedStickers.forEach((sticker, index) => {
+                const item = document.createElement('div');
+                item.className = 'sticker-preview-item';
+                item.innerHTML = `
+                    <div class="sticker-container">
+                        <img src="${sticker.url}" alt="Sticker" style="max-width: 100px; max-height: 100px; object-fit: contain;">
+                    </div>
+                    <button class="remove-sticker" onclick="removeSticker(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                preview.appendChild(item);
+            });
+        }
+
+        function removeSticker(index) {
+            selectedStickers.splice(index, 1);
+            updateStickerPreview();
+        }
+
+        function resetStickerForm() {
+            selectedAvatar = null;
+            selectedStickers = [];
+            document.getElementById('stickerPackForm').reset();
+            document.getElementById('avatarPreview').innerHTML = '';
+            document.getElementById('stickerPreview').innerHTML = '';
+        }
+
+        stickerPackForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('stickerPackName').value.trim();
+            const author = document.getElementById('stickerPackAuthor').value.trim();
+            
+            if (!name || !author) {
+                showNotification('Error', 'Please fill all fields', 'error');
+                return;
+            }
+            
+            if (selectedStickers.length < 3) {
+                showNotification('Error', 'Add at least 3 stickers', 'error');
+                return;
+            }
+            
+            const newPack = {
+                id: generateId(),
+                name: name,
+                author: author,
+                avatar: selectedAvatar,
+                stickers: selectedStickers.map((sticker, i) => ({
+                    id: sticker.id,
+                    url: sticker.url,
+                    type: 'image',
+                    usage: 0
+                })),
+                createdAt: new Date().toISOString(),
+                installs: 1,
+                ownerId: currentUser.id
+            };
+            
+            stickerPacks.push(newPack);
+            localStorage.setItem(`nexus_sticker_packs_${currentUser.id}`, JSON.stringify(stickerPacks));
+            
+            updateStickerPacks();
+            createStickerPackModal.classList.remove('active');
+            resetStickerForm();
+            
+            showNotification('Sticker pack created', `Pack "${name}" created successfully`, 'success');
+        });
+
+        function showStickerStats(packId) {
+            const pack = stickerPacks.find(p => p.id === packId);
+            if (!pack) return;
+            
+            const statsContent = document.getElementById('stickerStatsContent');
+            statsContent.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="width: 100px; height: 100px; border-radius: 20px; background: ${getGradientColor(pack.name)}; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold; margin: 0 auto 20px;">
+                        ${pack.avatar ? `<img src="${pack.avatar}" style="width: 100%; height: 100%; border-radius: 20px; object-fit: cover;">` : pack.name.charAt(0)}
+                    </div>
+                    <h3 style="font-size: 24px; margin-bottom: 8px;">${pack.name}</h3>
+                    <p style="color: var(--text-secondary);">${currentLanguage === 'ru' ? 'Автор:' : 'Author:'} ${pack.author}</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 16px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; margin-bottom: 8px; color: var(--primary);">${pack.stickers.length}</div>
+                        <div style="color: var(--text-secondary);">Stickers</div>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 16px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; margin-bottom: 8px; color: var(--success);">${pack.installs || 1}</div>
+                        <div style="color: var(--text-secondary);">Installs</div>
+                    </div>
+                </div>
+                
+                ${pack.ownerId === currentUser.id ? `
+                    <button class="auth-button" onclick="deleteStickerPack('${packId}')" style="width: 100%; background: var(--danger);">
+                        <span>Delete Pack</span>
+                    </button>
+                ` : ''}
+            `;
+            
+            stickerStatsModal.classList.add('active');
+        }
+
+        closeStickerStats.addEventListener('click', () => {
+            stickerStatsModal.classList.remove('active');
+        });
+
+        function deleteStickerPack(packId) {
+            if (!confirm(currentLanguage === 'ru' ? 'Удалить этот стикерпак?' : 'Delete this sticker pack?')) return;
+            
+            stickerPacks = stickerPacks.filter(p => p.id !== packId);
+            localStorage.setItem(`nexus_sticker_packs_${currentUser.id}`, JSON.stringify(stickerPacks));
+            
+            updateStickerPacks();
+            stickerStatsModal.classList.remove('active');
+            showNotification('Pack deleted', 'Sticker pack deleted', 'success');
+        }
+
+        // ============ ЗВОНКИ ============
+        voiceCallButton.addEventListener('click', () => {
+            if (!currentChat || currentChat.type !== 'private') {
+                showNotification('Error', 'Select a friend to call', 'error');
+                return;
+            }
+            
+            startCall('voice');
+        });
+
+        videoCallButton.addEventListener('click', () => {
+            if (!currentChat || currentChat.type !== 'private') {
+                showNotification('Error', 'Select a friend to call', 'error');
+                return;
+            }
+            
+            startCall('video');
+        });
+
+        function startCall(type) {
+            const otherUserId = currentChat.participants.find(id => id !== currentUser.id);
+            const otherUser = users.find(u => u.id === otherUserId);
+            
+            currentCall = {
+                id: generateId(),
+                type: type,
+                from: currentUser.id,
+                to: otherUserId,
+                status: 'calling',
+                startedAt: new Date().toISOString()
+            };
+            
+            callContainer.classList.add('active');
+            callStatus.textContent = t('calling');
+            callTimer.textContent = '00:00';
+            callAvatar.textContent = otherUser.name.charAt(0);
+            callAvatar.style.background = otherUser.avatarColor;
+            
+            acceptCall.style.display = 'none';
+            declineCall.style.display = 'flex';
+            endCall.style.display = 'none';
+            muteCall.style.display = 'none';
+        }
+
+        function endCurrentCall() {
+            if (callInterval) {
+                clearInterval(callInterval);
+                callInterval = null;
+            }
+            
+            callContainer.classList.remove('active');
+            isCallActive = false;
+            callTime = 0;
+            
+            if (currentCall) {
+                currentCall.endedAt = new Date().toISOString();
+                currentCall.duration = callTime;
+            }
+        }
+
+        acceptCall.addEventListener('click', () => {
+            callStatus.textContent = t('callActive');
+            acceptCall.style.display = 'none';
+            declineCall.style.display = 'none';
+            endCall.style.display = 'flex';
+            muteCall.style.display = 'flex';
+            
+            isCallActive = true;
+            callTime = 0;
+            
+            callInterval = setInterval(() => {
+                callTime++;
+                const minutes = Math.floor(callTime / 60).toString().padStart(2, '0');
+                const seconds = (callTime % 60).toString().padStart(2, '0');
+                callTimer.textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        });
+
+        declineCall.addEventListener('click', endCurrentCall);
+        endCall.addEventListener('click', endCurrentCall);
+
+        muteCall.addEventListener('click', () => {
+            const isMuted = muteCall.innerHTML.includes('slash');
+            if (isMuted) {
+                muteCall.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                muteCall.title = t('unmuteCall');
+            } else {
+                muteCall.innerHTML = '<i class="fas fa-microphone"></i>';
+                muteCall.title = t('muteCall');
+            }
+        });
+
+        // ============ НАСТРОЙКИ ============
+        settingsButton.addEventListener('click', () => {
+            settingsModal.classList.add('active');
+            loadSettingsContent();
+        });
+
+        closeSettingsModal.addEventListener('click', () => {
+            settingsModal.classList.remove('active');
+        });
+
+        function loadSettingsContent() {
+            const settings = JSON.parse(localStorage.getItem(`nexus_settings_${currentUser.id}`) || '{}');
+            
+            settingsModalContent.innerHTML = `
+                <div class="settings-tab-content active" data-tab="account">
+                    <div class="settings-section">
+                        <div class="settings-title">${t('settingsAccount')}</div>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <div class="setting-label">${currentLanguage === 'ru' ? 'Имя' : 'Name'}</div>
+                                <div class="setting-control">
+                                    <input type="text" class="form-input" id="userNameInput" value="${currentUser.name}" style="width: 200px;">
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">${currentLanguage === 'ru' ? 'Email' : 'Email'}</div>
+                                <div class="setting-control">
+                                    <input type="email" class="form-input" id="userEmailInput" value="${currentUser.email}" style="width: 200px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-tab-content" data-tab="appearance">
+                    <div class="settings-section">
+                        <div class="settings-title">${t('settingsAppearance')}</div>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <div class="setting-label">${t('settingsLanguage')}</div>
+                                <div class="setting-control">
+                                    <select class="select-input" id="languageSelect">
+                                        <option value="en" ${currentLanguage === 'en' ? 'selected' : ''}>${t('settingsEnglish')}</option>
+                                        <option value="ru" ${currentLanguage === 'ru' ? 'selected' : ''}>${t('settingsRussian')}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">${t('settingsTheme')}</div>
+                                <div class="setting-control">
+                                    <select class="select-input" id="themeSelect">
+                                        <option value="dark" ${currentTheme === 'dark' ? 'selected' : ''}>${t('settingsDarkTheme')}</option>
+                                        <option value="light" ${currentTheme === 'light' ? 'selected' : ''}>${t('settingsLightTheme')}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-tab-content" data-tab="privacy">
+                    <div class="settings-section">
+                        <div class="settings-title">${t('settingsPrivacy')}</div>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <div class="setting-label">${t('settingsProfileVisibility')}</div>
+                                <div class="setting-control">
+                                    <select class="select-input" id="profileVisibilitySelect">
+                                        <option value="all">${t('settingsVisibleToAll')}</option>
+                                        <option value="friends">${t('settingsVisibleToFriends')}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">${t('settingsLastSeen')}</div>
+                                <div class="setting-control">
+                                    <select class="select-input" id="lastSeenSelect">
+                                        <option value="show">${t('settingsShowLastSeen')}</option>
+                                        <option value="hide">${t('settingsHideLastSeen')}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-tab-content" data-tab="notifications">
+                    <div class="settings-section">
+                        <div class="settings-title">${t('settingsNotifications')}</div>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <div class="setting-label">${t('settingsMessageSound')}</div>
+                                <div class="setting-control">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" class="toggle-checkbox" id="messageSoundToggle" ${settings.messageSound !== false ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">${t('settingsCallSound')}</div>
+                                <div class="setting-control">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" class="toggle-checkbox" id="callSoundToggle" ${settings.callSound !== false ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-tab-content" data-tab="voice">
+                    <div class="settings-section">
+                        <div class="settings-title">${t('settingsVoice')}</div>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <div class="setting-label">${t('settingsAutoPlay')}</div>
+                                <div class="setting-control">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" class="toggle-checkbox" id="autoPlayToggle" ${autoPlayVoice ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">${t('settingsVoiceQuality')}</div>
+                                <div class="setting-control">
+                                    <select class="select-input" id="voiceQualitySelect">
+                                        <option value="low" ${voiceQuality === 'low' ? 'selected' : ''}>${t('settingsQualityLow')}</option>
+                                        <option value="medium" ${voiceQuality === 'medium' ? 'selected' : ''}>${t('settingsQualityMedium')}</option>
+                                        <option value="high" ${voiceQuality === 'high' ? 'selected' : ''}>${t('settingsQualityHigh')}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">${t('settingsVoiceStyle')}</div>
+                                <div class="setting-control">
+                                    <select class="select-input" id="voiceStyleSelect">
+                                        <option value="modern" ${voiceStyle === 'modern' ? 'selected' : ''}>${t('settingsStyleModern')}</option>
+                                        <option value="classic" ${voiceStyle === 'classic' ? 'selected' : ''}>${t('settingsStyleClassic')}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Добавляем обработчики событий
+            document.getElementById('languageSelect').addEventListener('change', (e) => {
+                currentLanguage = e.target.value;
+                updateTexts();
+                loadSettingsContent();
+                saveSettings();
+            });
+            
+            document.getElementById('themeSelect').addEventListener('change', (e) => {
+                currentTheme = e.target.value;
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                themeBtn.innerHTML = currentTheme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                saveSettings();
+            });
+            
+            document.getElementById('userNameInput').addEventListener('change', (e) => {
+                currentUser.name = e.target.value;
+                localStorage.setItem('nexus_current_user', JSON.stringify(currentUser));
+                updateUserProfile();
+                updateChatsList();
+            });
+            
+            document.getElementById('voiceStyleSelect').addEventListener('change', (e) => {
+                voiceStyle = e.target.value;
+                saveSettings();
+            });
+            
+            document.getElementById('autoPlayToggle').addEventListener('change', (e) => {
+                autoPlayVoice = e.target.checked;
+                saveSettings();
+            });
+            
+            document.getElementById('voiceQualitySelect').addEventListener('change', (e) => {
+                voiceQuality = e.target.value;
+                saveSettings();
+            });
+            
+            // Табы настроек
+            settingsTabs.addEventListener('click', (e) => {
+                if (e.target.classList.contains('settings-tab')) {
+                    const tab = e.target.dataset.tab;
+                    
+                    // Обновляем активные табы
+                    document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    // Показываем соответствующий контент
+                    document.querySelectorAll('.settings-tab-content').forEach(content => {
+                        content.classList.remove('active');
+                        if (content.dataset.tab === tab) {
+                            content.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }
+
+        // ============ ВЫХОД ============
+        logoutButton.addEventListener('click', () => {
+            logoutModal.classList.add('active');
+        });
+
+        closeLogoutModal.addEventListener('click', () => {
+            logoutModal.classList.remove('active');
+        });
+
+        cancelLogout.addEventListener('click', () => {
+            logoutModal.classList.remove('active');
+        });
+
+        confirmLogout.addEventListener('click', () => {
+            currentUser = null;
+            localStorage.removeItem('nexus_current_user');
+            
+            // Останавливаем обновление в реальном времени
+            if (realTimeInterval) {
+                clearInterval(realTimeInterval);
+                realTimeInterval = null;
+            }
+            
+            appContainer.style.display = 'none';
+            authContainer.style.display = 'flex';
+            setTimeout(() => {
+                authContainer.style.opacity = '1';
+            }, 50);
+            
+            loginForm.reset();
+            registerForm.reset();
+            switchAuthTab('login');
+            logoutModal.classList.remove('active');
+        });
+
+        // ============ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ============
+        function autoResizeTextarea() {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+        }
+
+        messageInput.addEventListener('input', autoResizeTextarea);
+
+        // Новый чат
+        newChatButton.addEventListener('click', () => {
+            if (friends.length === 0) {
+                showNotification('No friends', t('addFirstFriend'), 'info');
+                openAddFriendModal();
+                return;
+            }
+            
+            const friend = friends[Math.floor(Math.random() * friends.length)];
+            startChatWithFriend(friend);
+        });
+
+        startChatWelcome.addEventListener('click', newChatButton.click.bind(newChatButton));
+
+        // Закрытие панелей при клике вне
+        document.addEventListener('click', (e) => {
+            if (!emojiPanel.contains(e.target) && !emojiButton.contains(e.target)) {
+                emojiPanel.classList.remove('active');
+            }
+            if (!stickerPanel.contains(e.target) && !stickerButton.contains(e.target)) {
+                stickerPanel.classList.remove('active');
+            }
+        });
+
+        // ============ РЕАЛЬНОЕ ВРЕМЯ ОБНОВЛЕНИЕ ============
+        function startRealTimeUpdates() {
+            if (realTimeInterval) {
+                clearInterval(realTimeInterval);
+            }
+            
+            realTimeInterval = setInterval(() => {
+                // Обновляем список чатов
+                updateChatsList();
+                
+                // Обновляем список друзей
+                updateFriendsList();
+                
+                // Если есть активный чат, проверяем новые сообщения
+                if (currentChat) {
+                    const chatMessages = messages[currentChat.id] || [];
+                    const currentMessageCount = chatMessages.length;
+                    
+                    // Симулируем получение новых сообщений
+                    if (Math.random() > 0.8 && currentChat.type === 'private') {
+                        const otherUserId = currentChat.participants.find(id => id !== currentUser.id);
+                        const otherUser = users.find(u => u.id === otherUserId);
+                        
+                        if (otherUser && currentMessageCount > 0) {
+                            // Добавляем новое сообщение
+                            const newMessage = {
+                                id: generateId(),
+                                chatId: currentChat.id,
+                                senderId: otherUserId,
+                                text: currentLanguage === 'ru' ? 'Новое сообщение!' : 'New message!',
+                                type: 'text',
+                                timestamp: new Date().toISOString(),
+                                status: 'delivered'
+                            };
+                            
+                            if (!messages[currentChat.id]) messages[currentChat.id] = [];
+                            messages[currentChat.id].push(newMessage);
+                            localStorage.setItem('nexus_messages', JSON.stringify(messages));
+                            
+                            // Обновляем отображение
+                            const messageElement = createMessageElement(newMessage);
+                            messagesWrapper.appendChild(messageElement);
+                            messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+                            
+                            // Обновляем список чатов
+                            updateChatsList();
+                        }
+                    }
+                }
+                
+                // Обновляем бейджи
+                updateBadges();
+                
+            }, 3000); // Обновляем каждые 3 секунды
+        }
+
+        // ============ ИНИЦИАЛИЗАЦИЯ ============
+        document.addEventListener('DOMContentLoaded', () => {
+            // Проверить сохраненного пользователя
+            const savedUser = localStorage.getItem('nexus_current_user');
+            if (savedUser) {
+                try {
+                    const user = JSON.parse(savedUser);
+                    const users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
+                    
+                    if (users.some(u => u.id === user.id)) {
+                        loginUser(user);
+                    }
+                } catch (e) {
+                    console.error('Error loading user:', e);
+                }
+            }
+            
+            // Создать тестовых пользователей если их нет
+            if (!localStorage.getItem('nexus_users')) {
+                const testUsers = [
+                    {
+                        id: 'user1',
+                        name: 'Alex',
+                        email: 'alex@nexus.com',
+                        password: '123456',
+                        avatarColor: getGradientColor('Alex'),
+                        status: 'online',
+                        createdAt: new Date().toISOString(),
+                        lastSeen: new Date().toISOString()
+                    },
+                    {
+                        id: 'user2',
+                        name: 'Maria',
+                        email: 'maria@nexus.com',
+                        password: '123456',
+                        avatarColor: getGradientColor('Maria'),
+                        status: 'online',
+                        createdAt: new Date().toISOString(),
+                        lastSeen: new Date().toISOString()
+                    },
+                    {
+                        id: 'user3',
+                        name: 'John',
+                        email: 'john@nexus.com',
+                        password: '123456',
+                        avatarColor: getGradientColor('John'),
+                        status: 'idle',
+                        createdAt: new Date().toISOString(),
+                        lastSeen: new Date().toISOString()
+                    }
+                ];
+                
+                localStorage.setItem('nexus_users', JSON.stringify(testUsers));
+            }
+            
+            autoResizeTextarea();
+            updateTexts();
+        });
+
+        // Экспорт функций для HTML событий
+        window.startChatWithFriend = startChatWithFriend;
+        window.deleteChatPrompt = deleteChatPrompt;
+        window.deleteChat = deleteChat;
+        window.sendFriendRequest = sendFriendRequest;
+        window.acceptFriendRequest = acceptFriendRequest;
+        window.declineFriendRequest = declineFriendRequest;
+        window.cancelFriendRequest = cancelFriendRequest;
+        window.sendSticker = sendSticker;
+        window.showStickerStats = showStickerStats;
+        window.deleteStickerPack = deleteStickerPack;
+        window.removeSticker = removeSticker;
+        window.playVoiceMessage = playVoiceMessage;
+        window.downloadFile = downloadFile;
+        window.requestMicrophone = requestMicrophone;
+        window.requestCamera = requestCamera;
+    </script>
+</body>
+</html>
