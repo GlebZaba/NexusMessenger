@@ -899,22 +899,24 @@
         .message {
             display: flex;
             gap: 16px;
-            animation: messageAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: messageAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         @keyframes messageAppear {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .message.outgoing {
             flex-direction: row-reverse;
-            animation: messageAppearRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: messageAppearRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         @keyframes messageAppearRight {
-            from { transform: translateY(20px) translateX(20px); opacity: 0; }
-            to { transform: translateY(0) translateX(0); opacity: 1; }
+            from { opacity: 0; transform: translateY(20px) translateX(20px); }
+            to { opacity: 1; transform: translateY(0) translateX(0); }
         }
 
         .message-avatar {
@@ -1586,11 +1588,13 @@
             margin-bottom: 30px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
+            overflow-x: auto;
+            padding: 4px;
         }
 
         .settings-tab {
-            flex: 1;
-            padding: 15px;
+            flex-shrink: 0;
+            padding: 15px 20px;
             background: transparent;
             border: none;
             color: var(--text-secondary);
@@ -1975,6 +1979,7 @@
             border-radius: 50%;
             border-top-color: var(--primary);
             animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
         }
 
         @keyframes spin {
@@ -2105,6 +2110,66 @@
             padding: 2px 6px;
             border-radius: 10px;
             animation: pulse 1s infinite;
+        }
+
+        /* Загрузка файлов */
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-area:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-dark);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .sticker-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .sticker-preview-item {
+            position: relative;
+        }
+
+        .remove-sticker {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -2559,6 +2624,9 @@
         <div class="modal">
             <div class="modal-header">
                 <h2 class="modal-title">Permissions Required</h2>
+                <button class="modal-close" onclick="closePermissionModal()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-content">
                 <div class="permission-request">
@@ -2818,7 +2886,7 @@
         let callTime = 0;
         let currentCall = null;
         let voiceMessages = {};
-        let voiceStyle = 'modern'; // 'modern' or 'classic'
+        let voiceStyle = 'modern';
         let autoPlayVoice = true;
         let voiceQuality = 'high';
         let realTimeInterval = null;
@@ -2923,7 +2991,6 @@
         }
 
         function updateTexts() {
-            // Обновляем все тексты
             document.querySelectorAll('[id$="Text"], [id$="Title"], [id$="Label"]').forEach(el => {
                 const id = el.id;
                 if (t(id)) {
@@ -2935,7 +3002,6 @@
                 }
             });
             
-            // Обновляем кнопки
             document.querySelectorAll('.section-action span').forEach(span => {
                 const parent = span.closest('button');
                 if (parent.id === 'createGroupButton') {
@@ -2947,15 +3013,10 @@
                 }
             });
             
-            // Обновляем табы аутентификации
             if (loginTab) loginTab.textContent = t('login');
             if (registerTab) registerTab.textContent = t('register');
             if (tagline) tagline.textContent = t('tagline');
-            
-            // Обновляем placeholder поля ввода
             if (messageInput) messageInput.placeholder = t('typeMessage');
-            
-            // Обновляем текст языка
             if (langText) langText.textContent = currentLanguage.toUpperCase();
         }
 
@@ -3102,7 +3163,6 @@
             }
         }
 
-        // Переключение видимости пароля
         document.getElementById('loginPasswordToggle').addEventListener('click', function() {
             const input = document.getElementById('loginPassword');
             const icon = this.querySelector('i');
@@ -3220,7 +3280,6 @@
             localStorage.setItem(`nexus_friend_requests_${user.id}`, JSON.stringify([]));
             localStorage.setItem(`nexus_chats_${user.id}`, JSON.stringify([]));
             
-            // Создать тестовый стикер пак
             const defaultStickerPack = {
                 id: 'default',
                 name: 'Default Pack',
@@ -3239,7 +3298,6 @@
             
             localStorage.setItem(`nexus_sticker_packs_${user.id}`, JSON.stringify([defaultStickerPack]));
             
-            // Настройки по умолчанию
             const defaultSettings = {
                 language: 'en',
                 theme: 'dark',
@@ -3269,12 +3327,12 @@
                 appContainer.style.display = 'block';
                 showNotification('Welcome!', `Welcome back, ${user.name}!`, 'success');
                 
-                // Запросить разрешения
-                setTimeout(() => {
-                    requestPermissions();
-                }, 1000);
+                if (!localStorage.getItem('nexus_permissions_asked')) {
+                    setTimeout(() => {
+                        checkPermissions();
+                    }, 1000);
+                }
                 
-                // Запустить обновление в реальном времени
                 startRealTimeUpdates();
             }, 500);
         }
@@ -3299,10 +3357,20 @@
 
         // ============ ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ============
         function updateUserProfile() {
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userEmail').textContent = currentUser.email;
-            document.getElementById('userAvatarText').textContent = currentUser.name.charAt(0);
-            document.getElementById('userAvatar').style.background = currentUser.avatarColor;
+            const userName = currentUser.name || 'User';
+            const userEmail = currentUser.email || 'user@example.com';
+            
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userEmail').textContent = userEmail;
+            
+            const avatarText = userName.charAt(0).toUpperCase();
+            document.getElementById('userAvatarText').textContent = avatarText;
+            document.getElementById('userAvatar').style.background = currentUser.avatarColor || getGradientColor(userName);
+            
+            document.getElementById('userAvatar').innerHTML = `
+                <div id="userAvatarText">${avatarText}</div>
+                <div class="user-status status-online" id="userStatus"></div>
+            `;
         }
 
         function updateFriendsList() {
@@ -3517,7 +3585,8 @@
             const otherUser = otherUserId ? users.find(u => u.id === otherUserId) : null;
             
             document.getElementById('currentChatName').textContent = chat.name;
-            document.getElementById('currentChatAvatar').textContent = chat.name.charAt(0);
+            const avatarText = chat.name.charAt(0).toUpperCase();
+            document.getElementById('currentChatAvatar').textContent = avatarText;
             document.getElementById('currentChatAvatar').style.background = chat.avatarColor || (otherUser?.avatarColor || getGradientColor(chat.name));
             document.getElementById('currentChatStatus').textContent = otherUser?.status === 'online' ? 
                 (currentLanguage === 'ru' ? 'В сети' : 'Online') : 
@@ -3618,14 +3687,14 @@
                     `;
                 } else {
                     content = `
-                        <div style="background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 20px; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 20px; cursor: pointer;" onclick="playVoiceMessage('${msg.id}')">
-                            <button style="width: 50px; height: 50px; border-radius: 50%; background: var(--gradient); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <div style="background: var(--gradient); border-radius: 25px; padding: 20px; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 20px; min-width: 250px; max-width: 400px; position: relative; overflow: hidden;" onclick="playVoiceMessage('${msg.id}')">
+                            <button style="width: 50px; height: 50px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); border: none; color: var(--primary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 20px; position: relative; z-index: 1;">
                                 <i class="fas fa-play"></i>
                             </button>
-                            <div style="flex: 1; height: 40px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; overflow: hidden; position: relative;">
-                                <div style="position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--gradient); transition: width 0.1s linear;" id="wave-${msg.id}"></div>
+                            <div style="flex: 1; height: 40px; background: rgba(255, 255, 255, 0.2); border-radius: 20px; overflow: hidden; position: relative;">
+                                <div style="position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: rgba(255, 255, 255, 0.6); transition: width 0.1s linear;" id="wave-${msg.id}"></div>
                             </div>
-                            <div style="color: var(--text-secondary); font-size: 14px; font-weight: 600; min-width: 50px; text-align: right;">${msg.duration || '0:30'}</div>
+                            <div style="color: white; font-size: 14px; font-weight: 600; min-width: 50px; text-align: right; position: relative; z-index: 1;">${msg.duration || '0:30'}</div>
                         </div>
                     `;
                 }
@@ -3699,7 +3768,10 @@
 
         function sendMessage() {
             const text = messageInput.value.trim();
-            if (!text || !currentChat) return;
+            if (!text || !currentChat) {
+                showNotification('Error', 'Please select a chat and type a message', 'error');
+                return;
+            }
             
             const message = {
                 id: generateId(),
@@ -3713,34 +3785,48 @@
             
             if (!messages[currentChat.id]) messages[currentChat.id] = [];
             messages[currentChat.id].push(message);
-            localStorage.setItem('nexus_messages', JSON.stringify(messages));
             
-            currentChat.lastMessage = text;
-            localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
-            
-            const messageElement = createMessageElement(message);
-            
-            const emptyState = messagesWrapper.querySelector('.empty-chat');
-            if (emptyState) emptyState.remove();
-            
-            const lastDateElement = messagesWrapper.querySelector('.message-date:last-child');
-            const messageDate = formatDate(message.timestamp);
-            
-            if (!lastDateElement || lastDateElement.textContent !== messageDate) {
-                const dateElement = document.createElement('div');
-                dateElement.className = 'message-date';
-                dateElement.textContent = messageDate;
-                messagesWrapper.appendChild(dateElement);
+            try {
+                localStorage.setItem('nexus_messages', JSON.stringify(messages));
+                
+                currentChat.lastMessage = text;
+                currentChat.lastMessageTime = new Date().toISOString();
+                
+                const chatIndex = chats.findIndex(c => c.id === currentChat.id);
+                if (chatIndex !== -1) {
+                    chats[chatIndex] = currentChat;
+                }
+                
+                localStorage.setItem(`nexus_chats_${currentUser.id}`, JSON.stringify(chats));
+                
+                const messageElement = createMessageElement(message);
+                
+                const emptyState = messagesWrapper.querySelector('.empty-state');
+                if (emptyState) emptyState.remove();
+                
+                const lastDateElement = messagesWrapper.querySelector('.message-date:last-child');
+                const messageDate = formatDate(message.timestamp);
+                
+                if (!lastDateElement || lastDateElement.textContent !== messageDate) {
+                    const dateElement = document.createElement('div');
+                    dateElement.className = 'message-date';
+                    dateElement.textContent = messageDate;
+                    messagesWrapper.appendChild(dateElement);
+                }
+                
+                messagesWrapper.appendChild(messageElement);
+                messageInput.value = '';
+                autoResizeTextarea();
+                messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+                
+                updateChatsList();
+                
+                showNotification('Message sent', 'Message delivered', 'success');
+                
+            } catch (error) {
+                console.error('Error saving message:', error);
+                showNotification('Error', 'Failed to send message', 'error');
             }
-            
-            messagesWrapper.appendChild(messageElement);
-            messageInput.value = '';
-            autoResizeTextarea();
-            messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
-            
-            updateChatsList();
-            
-            // Убраны автоматические ответы
         }
 
         // ============ ЭМОДЗИ ============
@@ -3778,41 +3864,65 @@
         let voiceRecordingTime = 0;
         let mediaRecorder = null;
         let audioChunks = [];
+        let mediaStream = null;
 
         voiceMessageButton.addEventListener('mousedown', startVoiceRecording);
-        voiceMessageButton.addEventListener('touchstart', startVoiceRecording);
+        voiceMessageButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startVoiceRecording(e);
+        });
+
         document.addEventListener('mouseup', stopVoiceRecording);
         document.addEventListener('touchend', stopVoiceRecording);
 
-        function requestMicrophone() {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    showNotification('Success', 'Microphone access granted', 'success');
-                    permissionModal.style.display = 'none';
-                })
-                .catch(err => {
-                    showNotification('Error', 'Microphone access denied', 'error');
+        async function requestMicrophone() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
                 });
+                showNotification('Success', 'Microphone access granted', 'success');
+                permissionModal.style.display = 'none';
+                localStorage.setItem('nexus_permissions_asked', 'true');
+            } catch (err) {
+                showNotification('Error', 'Microphone access denied', 'error');
+            }
         }
 
-        function requestCamera() {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    showNotification('Success', 'Camera access granted', 'success');
-                    permissionModal.style.display = 'none';
-                })
-                .catch(err => {
-                    showNotification('Error', 'Camera access denied', 'error');
-                });
+        async function requestCamera() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                showNotification('Success', 'Camera access granted', 'success');
+                permissionModal.style.display = 'none';
+                localStorage.setItem('nexus_permissions_asked', 'true');
+            } catch (err) {
+                showNotification('Error', 'Camera access denied', 'error');
+            }
         }
 
-        function requestPermissions() {
-            // Проверяем разрешения
-            navigator.permissions.query({ name: 'microphone' }).then(permissionStatus => {
-                if (permissionStatus.state !== 'granted') {
+        async function checkPermissions() {
+            try {
+                if (navigator.permissions && navigator.permissions.query) {
+                    const micPermission = await navigator.permissions.query({ name: 'microphone' });
+                    const cameraPermission = await navigator.permissions.query({ name: 'camera' });
+                    
+                    if (micPermission.state === 'prompt' || cameraPermission.state === 'prompt') {
+                        permissionModal.style.display = 'flex';
+                    }
+                } else {
                     permissionModal.style.display = 'flex';
                 }
-            });
+            } catch (error) {
+                console.log('Permission API not supported');
+            }
+        }
+
+        function closePermissionModal() {
+            permissionModal.style.display = 'none';
+            localStorage.setItem('nexus_permissions_asked', 'true');
         }
 
         async function startVoiceRecording(e) {
@@ -3820,8 +3930,17 @@
             if (isVoiceRecording || !currentChat) return;
             
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
+                if (!mediaStream) {
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        } 
+                    });
+                }
+                
+                mediaRecorder = new MediaRecorder(mediaStream);
                 audioChunks = [];
                 
                 mediaRecorder.ondataavailable = event => {
@@ -3856,23 +3975,32 @@
                     
                     updateChatsList();
                     
-                    stream.getTracks().forEach(track => track.stop());
+                    showNotification('Voice message', 'Voice message sent', 'success');
                 };
                 
                 mediaRecorder.start();
                 isVoiceRecording = true;
                 voiceRecordingTime = 0;
-                showNotification(t('recording'), t('voiceMessage'), 'info');
-                
-                voiceRecordingInterval = setInterval(() => {
-                    voiceRecordingTime++;
-                }, 1000);
                 
                 voiceMessageButton.innerHTML = '<i class="fas fa-stop"></i>';
                 voiceMessageButton.style.color = 'var(--danger)';
+                voiceMessageButton.style.background = 'rgba(239, 68, 68, 0.2)';
+                
+                voiceRecordingInterval = setInterval(() => {
+                    voiceRecordingTime++;
+                    
+                    const minutes = Math.floor(voiceRecordingTime / 60);
+                    const seconds = voiceRecordingTime % 60;
+                    showNotification(
+                        `${t('recording')} ${minutes}:${seconds.toString().padStart(2, '0')}`,
+                        t('voiceMessage'),
+                        'info'
+                    );
+                }, 1000);
                 
             } catch (err) {
-                showNotification('Error', 'Microphone access required', 'error');
+                console.error('Error accessing microphone:', err);
+                showNotification('Error', 'Microphone access required for voice messages', 'error');
                 permissionModal.style.display = 'flex';
             }
         }
@@ -3889,6 +4017,7 @@
             
             voiceMessageButton.innerHTML = '<i class="fas fa-microphone"></i>';
             voiceMessageButton.style.color = '';
+            voiceMessageButton.style.background = '';
         }
 
         function playVoiceMessage(messageId) {
@@ -3907,9 +4036,18 @@
                 }, 100);
             }
             
-            if (autoPlayVoice && voiceMessages[messageId]) {
-                const audio = new Audio(voiceMessages[messageId]);
-                audio.play();
+            if (currentChat && messages[currentChat.id]) {
+                const message = messages[currentChat.id].find(m => m.id === messageId);
+                if (message && message.audioUrl) {
+                    try {
+                        const audio = new Audio(message.audioUrl);
+                        audio.play();
+                        showNotification(t('playing'), t('voiceMessage'), 'info');
+                    } catch (err) {
+                        console.error('Error playing audio:', err);
+                        showNotification('Error', 'Cannot play voice message', 'error');
+                    }
+                }
             }
         }
 
@@ -4521,8 +4659,9 @@
             callContainer.classList.add('active');
             callStatus.textContent = t('calling');
             callTimer.textContent = '00:00';
-            callAvatar.textContent = otherUser.name.charAt(0);
-            callAvatar.style.background = otherUser.avatarColor;
+            const callAvatarText = otherUser.name.charAt(0).toUpperCase();
+            document.getElementById('callAvatar').textContent = callAvatarText;
+            document.getElementById('callAvatar').style.background = otherUser.avatarColor;
             
             acceptCall.style.display = 'none';
             declineCall.style.display = 'flex';
@@ -4727,7 +4866,6 @@
                 </div>
             `;
             
-            // Добавляем обработчики событий
             document.getElementById('languageSelect').addEventListener('change', (e) => {
                 currentLanguage = e.target.value;
                 updateTexts();
@@ -4764,16 +4902,13 @@
                 saveSettings();
             });
             
-            // Табы настроек
             settingsTabs.addEventListener('click', (e) => {
                 if (e.target.classList.contains('settings-tab')) {
                     const tab = e.target.dataset.tab;
                     
-                    // Обновляем активные табы
                     document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
                     e.target.classList.add('active');
                     
-                    // Показываем соответствующий контент
                     document.querySelectorAll('.settings-tab-content').forEach(content => {
                         content.classList.remove('active');
                         if (content.dataset.tab === tab) {
@@ -4801,7 +4936,6 @@
             currentUser = null;
             localStorage.removeItem('nexus_current_user');
             
-            // Останавливаем обновление в реальном времени
             if (realTimeInterval) {
                 clearInterval(realTimeInterval);
                 realTimeInterval = null;
@@ -4827,7 +4961,6 @@
 
         messageInput.addEventListener('input', autoResizeTextarea);
 
-        // Новый чат
         newChatButton.addEventListener('click', () => {
             if (friends.length === 0) {
                 showNotification('No friends', t('addFirstFriend'), 'info');
@@ -4841,7 +4974,6 @@
 
         startChatWelcome.addEventListener('click', newChatButton.click.bind(newChatButton));
 
-        // Закрытие панелей при клике вне
         document.addEventListener('click', (e) => {
             if (!emojiPanel.contains(e.target) && !emojiButton.contains(e.target)) {
                 emojiPanel.classList.remove('active');
@@ -4858,108 +4990,30 @@
             }
             
             realTimeInterval = setInterval(() => {
-                // Обновляем список чатов
                 updateChatsList();
-                
-                // Обновляем список друзей
                 updateFriendsList();
-                
-                // Если есть активный чат, проверяем новые сообщения
-                if (currentChat) {
-                    const chatMessages = messages[currentChat.id] || [];
-                    const currentMessageCount = chatMessages.length;
-                    
-                    // Симулируем получение новых сообщений
-                    if (Math.random() > 0.8 && currentChat.type === 'private') {
-                        const otherUserId = currentChat.participants.find(id => id !== currentUser.id);
-                        const otherUser = users.find(u => u.id === otherUserId);
-                        
-                        if (otherUser && currentMessageCount > 0) {
-                            // Добавляем новое сообщение
-                            const newMessage = {
-                                id: generateId(),
-                                chatId: currentChat.id,
-                                senderId: otherUserId,
-                                text: currentLanguage === 'ru' ? 'Новое сообщение!' : 'New message!',
-                                type: 'text',
-                                timestamp: new Date().toISOString(),
-                                status: 'delivered'
-                            };
-                            
-                            if (!messages[currentChat.id]) messages[currentChat.id] = [];
-                            messages[currentChat.id].push(newMessage);
-                            localStorage.setItem('nexus_messages', JSON.stringify(messages));
-                            
-                            // Обновляем отображение
-                            const messageElement = createMessageElement(newMessage);
-                            messagesWrapper.appendChild(messageElement);
-                            messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
-                            
-                            // Обновляем список чатов
-                            updateChatsList();
-                        }
-                    }
-                }
-                
-                // Обновляем бейджи
                 updateBadges();
-                
-            }, 3000); // Обновляем каждые 3 секунды
+            }, 3000);
         }
 
         // ============ ИНИЦИАЛИЗАЦИЯ ============
         document.addEventListener('DOMContentLoaded', () => {
-            // Проверить сохраненного пользователя
-            const savedUser = localStorage.getItem('nexus_current_user');
-            if (savedUser) {
-                try {
+            try {
+                const savedUser = localStorage.getItem('nexus_current_user');
+                if (savedUser) {
                     const user = JSON.parse(savedUser);
                     const users = JSON.parse(localStorage.getItem('nexus_users') || '[]');
                     
                     if (users.some(u => u.id === user.id)) {
                         loginUser(user);
+                    } else {
+                        console.log('User not found in database');
                     }
-                } catch (e) {
-                    console.error('Error loading user:', e);
                 }
-            }
-            
-            // Создать тестовых пользователей если их нет
-            if (!localStorage.getItem('nexus_users')) {
-                const testUsers = [
-                    {
-                        id: 'user1',
-                        name: 'Alex',
-                        email: 'alex@nexus.com',
-                        password: '123456',
-                        avatarColor: getGradientColor('Alex'),
-                        status: 'online',
-                        createdAt: new Date().toISOString(),
-                        lastSeen: new Date().toISOString()
-                    },
-                    {
-                        id: 'user2',
-                        name: 'Maria',
-                        email: 'maria@nexus.com',
-                        password: '123456',
-                        avatarColor: getGradientColor('Maria'),
-                        status: 'online',
-                        createdAt: new Date().toISOString(),
-                        lastSeen: new Date().toISOString()
-                    },
-                    {
-                        id: 'user3',
-                        name: 'John',
-                        email: 'john@nexus.com',
-                        password: '123456',
-                        avatarColor: getGradientColor('John'),
-                        status: 'idle',
-                        createdAt: new Date().toISOString(),
-                        lastSeen: new Date().toISOString()
-                    }
-                ];
-                
-                localStorage.setItem('nexus_users', JSON.stringify(testUsers));
+            } catch (error) {
+                console.error('Initialization error:', error);
+                localStorage.clear();
+                location.reload();
             }
             
             autoResizeTextarea();
@@ -4982,6 +5036,7 @@
         window.downloadFile = downloadFile;
         window.requestMicrophone = requestMicrophone;
         window.requestCamera = requestCamera;
+        window.closePermissionModal = closePermissionModal;
     </script>
 </body>
 </html>
