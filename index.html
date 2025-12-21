@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Messenger</title>
-    <link rel="icon" type="image/x-icon" href="Images/Logo.png">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -134,16 +134,8 @@
             50% { transform: scale(1.05); }
         }
 
-        .logo img {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .logo i {
+            font-size: 48px;
         }
 
         .tagline {
@@ -274,6 +266,21 @@
 
         .auth-button:hover::after {
             left: 100%;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Основной интерфейс */
@@ -2004,22 +2011,6 @@
             color: var(--text-secondary);
         }
 
-        /* Загрузка */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         /* Анимации для списков */
         @keyframes listItemAppear {
             from {
@@ -2043,9 +2034,8 @@
                 font-size: 32px;
             }
             
-            .logo img {
-                width: 50px;
-                height: 50px;
+            .logo i {
+                font-size: 36px;
             }
             
             .sidebar {
@@ -3106,11 +3096,21 @@
         // ============ БАЗА ДАННЫХ ============
         class Database {
             static getUsers() {
-                return JSON.parse(localStorage.getItem('nexus_users') || '[]');
+                try {
+                    const users = localStorage.getItem('nexus_users');
+                    return users ? JSON.parse(users) : [];
+                } catch (error) {
+                    console.error('Error getting users:', error);
+                    return [];
+                }
             }
             
             static saveUsers(users) {
-                localStorage.setItem('nexus_users', JSON.stringify(users));
+                try {
+                    localStorage.setItem('nexus_users', JSON.stringify(users));
+                } catch (error) {
+                    console.error('Error saving users:', error);
+                }
             }
             
             static getUser(userId) {
@@ -3130,59 +3130,129 @@
             }
             
             static getChats() {
-                return JSON.parse(localStorage.getItem('nexus_chats') || '[]');
+                try {
+                    const chats = localStorage.getItem('nexus_chats');
+                    return chats ? JSON.parse(chats) : [];
+                } catch (error) {
+                    console.error('Error getting chats:', error);
+                    return [];
+                }
             }
             
             static saveChats(chats) {
-                localStorage.setItem('nexus_chats', JSON.stringify(chats));
+                try {
+                    localStorage.setItem('nexus_chats', JSON.stringify(chats));
+                } catch (error) {
+                    console.error('Error saving chats:', error);
+                }
             }
             
             static getMessages() {
-                return JSON.parse(localStorage.getItem('nexus_messages') || '{}');
+                try {
+                    const messages = localStorage.getItem('nexus_messages');
+                    return messages ? JSON.parse(messages) : {};
+                } catch (error) {
+                    console.error('Error getting messages:', error);
+                    return {};
+                }
             }
             
             static saveMessages(messages) {
-                localStorage.setItem('nexus_messages', JSON.stringify(messages));
+                try {
+                    localStorage.setItem('nexus_messages', JSON.stringify(messages));
+                } catch (error) {
+                    console.error('Error saving messages:', error);
+                }
             }
             
             static getFriends(userId) {
-                return JSON.parse(localStorage.getItem(`nexus_friends_${userId}`) || '[]');
+                try {
+                    const friends = localStorage.getItem(`nexus_friends_${userId}`);
+                    return friends ? JSON.parse(friends) : [];
+                } catch (error) {
+                    console.error('Error getting friends:', error);
+                    return [];
+                }
             }
             
             static saveFriends(userId, friendsList) {
-                localStorage.setItem(`nexus_friends_${userId}`, JSON.stringify(friendsList));
+                try {
+                    localStorage.setItem(`nexus_friends_${userId}`, JSON.stringify(friendsList));
+                } catch (error) {
+                    console.error('Error saving friends:', error);
+                }
             }
             
             static getFriendRequests(userId) {
-                return JSON.parse(localStorage.getItem(`nexus_friend_requests_${userId}`) || '[]');
+                try {
+                    const requests = localStorage.getItem(`nexus_friend_requests_${userId}`);
+                    return requests ? JSON.parse(requests) : [];
+                } catch (error) {
+                    console.error('Error getting friend requests:', error);
+                    return [];
+                }
             }
             
             static saveFriendRequests(userId, requests) {
-                localStorage.setItem(`nexus_friend_requests_${userId}`, JSON.stringify(requests));
+                try {
+                    localStorage.setItem(`nexus_friend_requests_${userId}`, JSON.stringify(requests));
+                } catch (error) {
+                    console.error('Error saving friend requests:', error);
+                }
             }
             
             static getStickerPacks(userId) {
-                return JSON.parse(localStorage.getItem(`nexus_sticker_packs_${userId}`) || '[]');
+                try {
+                    const packs = localStorage.getItem(`nexus_sticker_packs_${userId}`);
+                    return packs ? JSON.parse(packs) : [];
+                } catch (error) {
+                    console.error('Error getting sticker packs:', error);
+                    return [];
+                }
             }
             
             static saveStickerPacks(userId, packs) {
-                localStorage.setItem(`nexus_sticker_packs_${userId}`, JSON.stringify(packs));
+                try {
+                    localStorage.setItem(`nexus_sticker_packs_${userId}`, JSON.stringify(packs));
+                } catch (error) {
+                    console.error('Error saving sticker packs:', error);
+                }
             }
             
             static getSettings(userId) {
-                return JSON.parse(localStorage.getItem(`nexus_settings_${userId}`) || '{}');
+                try {
+                    const settings = localStorage.getItem(`nexus_settings_${userId}`);
+                    return settings ? JSON.parse(settings) : {};
+                } catch (error) {
+                    console.error('Error getting settings:', error);
+                    return {};
+                }
             }
             
             static saveSettings(userId, settings) {
-                localStorage.setItem(`nexus_settings_${userId}`, JSON.stringify(settings));
+                try {
+                    localStorage.setItem(`nexus_settings_${userId}`, JSON.stringify(settings));
+                } catch (error) {
+                    console.error('Error saving settings:', error);
+                }
             }
             
             static getCalls() {
-                return JSON.parse(localStorage.getItem('nexus_calls') || '[]');
+                try {
+                    const calls = localStorage.getItem('nexus_calls');
+                    return calls ? JSON.parse(calls) : [];
+                } catch (error) {
+                    console.error('Error getting calls:', error);
+                    return [];
+                }
             }
             
             static saveCalls(calls) {
-                localStorage.setItem('nexus_calls', JSON.stringify(calls));
+                try {
+                    localStorage.setItem('nexus_calls', JSON.stringify(calls));
+                } catch (error) {
+                    console.error('Error saving calls:', error);
+                }
             }
             
             static addCall(call) {
@@ -3292,6 +3362,7 @@
         }
 
         function updateTexts() {
+            // Обновляем тексты в интерфейсе
             document.querySelectorAll('[id$="Text"], [id$="Title"], [id$="Label"]').forEach(el => {
                 const id = el.id;
                 if (t(id)) {
@@ -3303,6 +3374,7 @@
                 }
             });
             
+            // Обновляем кнопки
             document.querySelectorAll('.section-action span').forEach(span => {
                 const parent = span.closest('button');
                 if (parent.id === 'createGroupButton') {
@@ -3314,6 +3386,7 @@
                 }
             });
             
+            // Обновляем основные элементы
             if (loginTab) loginTab.textContent = t('login');
             if (registerTab) registerTab.textContent = t('register');
             if (tagline) tagline.textContent = t('tagline');
@@ -3456,9 +3529,6 @@
         }
 
         // ============ АУТЕНТИФИКАЦИЯ ============
-        loginTab.addEventListener('click', () => switchAuthTab('login'));
-        registerTab.addEventListener('click', () => switchAuthTab('register'));
-
         function switchAuthTab(tab) {
             if (tab === 'login') {
                 loginTab.classList.add('active');
@@ -3471,6 +3541,16 @@
                 loginForm.style.display = 'none';
                 registerForm.style.display = 'flex';
             }
+            
+            // Сбрасываем состояния кнопок
+            resetAuthButtons();
+        }
+
+        function resetAuthButtons() {
+            loginButton.innerHTML = '<span id="loginText">' + t('loginText') + '</span>';
+            loginButton.disabled = false;
+            registerButton.innerHTML = '<span id="registerText">' + t('registerText') + '</span>';
+            registerButton.disabled = false;
         }
 
         document.getElementById('loginPasswordToggle').addEventListener('click', function() {
@@ -3512,6 +3592,7 @@
             loginButton.innerHTML = '<div class="loading"></div>';
             loginButton.disabled = true;
             
+            // Небольшая задержка для симуляции запроса
             setTimeout(() => {
                 const users = Database.getUsers();
                 const user = users.find(u => u.email === email && u.password === password);
@@ -3520,11 +3601,10 @@
                     loginUser(user);
                 } else {
                     showNotification('Error', 'Invalid email or password', 'error');
-                    loginButton.innerHTML = '<span id="loginText">Login to account</span>';
-                    loginButton.disabled = false;
+                    resetAuthButtons();
                     updateTexts();
                 }
-            }, 1000);
+            }, 800);
         });
 
         // Регистрация
@@ -3559,14 +3639,13 @@
                 
                 if (users.some(u => u.email === email)) {
                     showNotification('Error', 'User with this email already exists', 'error');
-                    registerButton.innerHTML = '<span id="registerText">Create account</span>';
-                    registerButton.disabled = false;
+                    resetAuthButtons();
                     updateTexts();
                     return;
                 }
                 
+                // Создаем нового пользователя
                 const randomAvatar = DEFAULT_AVATARS[Math.floor(Math.random() * DEFAULT_AVATARS.length)];
-                
                 const newUser = {
                     id: generateId(),
                     name: name,
@@ -3582,46 +3661,82 @@
                 users.push(newUser);
                 Database.saveUsers(users);
                 
+                // Инициализируем данные пользователя
                 initializeUserData(newUser);
+                
+                // Логиним пользователя
                 loginUser(newUser);
-            }, 1500);
+                
+                // Сбрасываем форму
+                registerForm.reset();
+            }, 1000);
         });
 
         function initializeUserData(user) {
-            Database.saveFriends(user.id, []);
-            Database.saveFriendRequests(user.id, []);
-            
-            const defaultStickerPack = {
-                id: 'default',
-                name: 'Default Pack',
-                author: 'Nexus Team',
-                avatar: null,
-                stickers: EMOJIS.slice(0, 15).map((emoji, i) => ({
-                    id: `sticker_${i}`,
-                    emoji: emoji,
-                    type: 'emoji',
-                    usage: Math.floor(Math.random() * 100)
-                })),
-                createdAt: new Date().toISOString(),
-                installs: 1250,
-                ownerId: 'system'
-            };
-            
-            Database.saveStickerPacks(user.id, [defaultStickerPack]);
+            try {
+                // Создаем пустые списки друзей и запросов
+                Database.saveFriends(user.id, []);
+                Database.saveFriendRequests(user.id, []);
+                
+                // Создаем дефолтный стикерпак
+                const defaultStickerPack = {
+                    id: 'default_' + Date.now(),
+                    name: 'Default Pack',
+                    author: user.name,
+                    avatar: null,
+                    stickers: EMOJIS.slice(0, 15).map((emoji, i) => ({
+                        id: `sticker_${i}_${Date.now()}`,
+                        emoji: emoji,
+                        type: 'emoji',
+                        usage: Math.floor(Math.random() * 100)
+                    })),
+                    createdAt: new Date().toISOString(),
+                    installs: 1250,
+                    ownerId: user.id
+                };
+                
+                Database.saveStickerPacks(user.id, [defaultStickerPack]);
+                
+                // Сохраняем настройки по умолчанию
+                const defaultSettings = {
+                    language: 'en',
+                    theme: 'dark',
+                    voiceStyle: 'modern',
+                    autoPlayVoice: true,
+                    voiceQuality: 'high',
+                    notifications: true,
+                    messageSound: true,
+                    callSound: true,
+                    lastSeen: 'everyone',
+                    profilePhoto: 'everyone'
+                };
+                Database.saveSettings(user.id, defaultSettings);
+                
+                console.log("User data initialized for:", user.email);
+            } catch (error) {
+                console.error("Error initializing user data:", error);
+            }
         }
 
         function loginUser(user) {
             currentUser = user;
             localStorage.setItem('nexus_current_user', JSON.stringify(user));
             
-            loadUserData();
-            loadSettings();
+            // Сбрасываем кнопки
+            resetAuthButtons();
             
+            // Показываем уведомление
+            showNotification('Welcome!', `Welcome back, ${user.name}!`, 'success');
+            
+            // Анимация перехода
             authContainer.style.opacity = '0';
             setTimeout(() => {
                 authContainer.style.display = 'none';
                 appContainer.style.display = 'block';
-                showNotification('Welcome!', `Welcome back, ${user.name}!`, 'success');
+                
+                // Инициализация данных пользователя
+                loadUserData();
+                loadSettings();
                 
                 if (!localStorage.getItem('nexus_permissions_asked')) {
                     setTimeout(() => {
@@ -3652,8 +3767,78 @@
             initEmojiPanel();
         }
 
+        // ============ ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ============
+        function initializeApp() {
+            try {
+                // Проверяем, есть ли пользователи в базе
+                let users = Database.getUsers();
+                
+                // Если база пуста, добавляем демо-пользователя для тестирования
+                if (users.length === 0) {
+                    const demoUser = {
+                        id: generateId(),
+                        name: "Demo User",
+                        email: "demo@example.com",
+                        password: "demo123",
+                        avatar: DEFAULT_AVATARS[0],
+                        avatarColor: getGradientColor("Demo User"),
+                        status: 'online',
+                        createdAt: new Date().toISOString(),
+                        lastSeen: new Date().toISOString()
+                    };
+                    users.push(demoUser);
+                    Database.saveUsers(users);
+                    
+                    // Инициализируем данные демо-пользователя
+                    initializeUserData(demoUser);
+                    
+                    console.log("Created demo user for testing");
+                }
+                
+                // Проверяем сохраненную сессию
+                const savedUser = localStorage.getItem('nexus_current_user');
+                if (savedUser) {
+                    try {
+                        const user = JSON.parse(savedUser);
+                        const users = Database.getUsers();
+                        const existingUser = users.find(u => u.id === user.id && u.email === user.email);
+                        
+                        if (existingUser) {
+                            // Автоматический вход
+                            setTimeout(() => {
+                                loginUser(existingUser);
+                            }, 100);
+                        } else {
+                            console.log('User session expired or user not found');
+                            localStorage.removeItem('nexus_current_user');
+                            showAuthScreen();
+                        }
+                    } catch (error) {
+                        console.log('Error parsing saved user:', error);
+                        localStorage.removeItem('nexus_current_user');
+                        showAuthScreen();
+                    }
+                } else {
+                    showAuthScreen();
+                }
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                // В случае ошибки показываем экран аутентификации
+                showAuthScreen();
+            }
+        }
+
+        function showAuthScreen() {
+            authContainer.style.display = 'flex';
+            appContainer.style.display = 'none';
+            authContainer.style.opacity = '1';
+        }
+
         // ============ ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ============
         function updateUserProfile() {
+            if (!currentUser) return;
+            
             const userName = currentUser.name || 'User';
             const userEmail = currentUser.email || 'user@example.com';
             
@@ -3666,32 +3851,34 @@
             if (currentUser.avatar) {
                 avatar.style.backgroundImage = `url(${currentUser.avatar})`;
                 avatar.classList.add('has-image');
-                avatarText.style.display = 'none';
+                if (avatarText) avatarText.style.display = 'none';
             } else {
                 avatar.style.background = currentUser.avatarColor || getGradientColor(userName);
                 avatar.classList.remove('has-image');
-                avatarText.textContent = userName.charAt(0).toUpperCase();
-                avatarText.style.display = 'flex';
+                if (avatarText) {
+                    avatarText.textContent = userName.charAt(0).toUpperCase();
+                    avatarText.style.display = 'flex';
+                }
             }
             
-            avatar.innerHTML = '';
-            if (!currentUser.avatar) {
-                avatar.appendChild(avatarText);
+            // Убедимся, что статус отображается
+            let statusDiv = avatar.querySelector('.user-status');
+            if (!statusDiv) {
+                statusDiv = document.createElement('div');
+                statusDiv.className = 'user-status status-online';
+                avatar.appendChild(statusDiv);
             }
-            
-            const statusDiv = document.createElement('div');
-            statusDiv.className = 'user-status status-online';
-            statusDiv.id = 'userStatus';
-            avatar.appendChild(statusDiv);
         }
 
         function updateFriendsList() {
             const friendList = document.getElementById('friendList');
+            if (!friendList) return;
+            
             friendList.innerHTML = '';
             
             if (friends.length === 0) {
                 friendList.innerHTML = `
-                    <div class="friend-item" style="justify-content: center; color: var(--text-secondary);">
+                    <div class="friend-item" style="justify-content: center; color: var(--text-secondary); padding: 20px;">
                         <i class="fas fa-user-friends" style="margin-right: 8px;"></i>
                         ${t('noFriends')}
                     </div>
@@ -3709,7 +3896,7 @@
                 const avatarClass = friend.avatar ? 'has-image' : '';
                 const avatarStyle = friend.avatar ? 
                     `background-image: url(${friend.avatar})` : 
-                    `background: ${friend.avatarColor}`;
+                    `background: ${friend.avatarColor || getGradientColor(friend.name)}`;
                 
                 friendItem.innerHTML = `
                     <div class="item-avatar ${avatarClass}" style="${avatarStyle}">
@@ -3732,11 +3919,13 @@
 
         function updateChatsList() {
             const chatList = document.getElementById('chatList');
+            if (!chatList) return;
+            
             chatList.innerHTML = '';
             
             if (chats.length === 0) {
                 chatList.innerHTML = `
-                    <div class="chat-item" style="justify-content: center; color: var(--text-secondary);">
+                    <div class="chat-item" style="justify-content: center; color: var(--text-secondary); padding: 20px;">
                         <i class="fas fa-comments" style="margin-right: 8px;"></i>
                         ${t('noChats')}
                     </div>
@@ -3794,6 +3983,8 @@
 
         function updateStickerPacks() {
             const stickerPackList = document.getElementById('stickerPackList');
+            if (!stickerPackList) return;
+            
             stickerPackList.innerHTML = '';
             
             if (stickerPacks.length === 0) {
@@ -5381,7 +5572,7 @@
             });
         }
 
-        let selectedAvatarUrl = currentUser.avatar;
+        let selectedAvatarUrl = currentUser?.avatar || '';
 
         function selectAvatar(avatarUrl) {
             selectedAvatarUrl = avatarUrl;
@@ -5521,25 +5712,27 @@
         // ============ ИНИЦИАЛИЗАЦИЯ ============
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                const savedUser = localStorage.getItem('nexus_current_user');
-                if (savedUser) {
-                    const user = JSON.parse(savedUser);
-                    const users = Database.getUsers();
-                    
-                    if (users.some(u => u.id === user.id)) {
-                        loginUser(user);
-                    } else {
-                        console.log('User not found in database');
-                    }
-                }
+                // Инициализация приложения
+                initializeApp();
+                
+                // Инициализация панели эмодзи
+                initEmojiPanel();
+                
+                // Обновление текстов
+                updateTexts();
+                
+                // Авто-ресайз текстового поля
+                autoResizeTextarea();
+                
+                // Добавляем обработчики для переключения вкладок аутентификации
+                loginTab.addEventListener('click', () => switchAuthTab('login'));
+                registerTab.addEventListener('click', () => switchAuthTab('register'));
+                
             } catch (error) {
                 console.error('Initialization error:', error);
-                localStorage.clear();
-                location.reload();
+                // В случае ошибки показываем экран аутентификации
+                showAuthScreen();
             }
-            
-            autoResizeTextarea();
-            updateTexts();
         });
 
         // Экспорт функций для HTML событий
@@ -5565,4 +5758,4 @@
         window.saveAvatar = saveAvatar;
     </script>
 </body>
-</html> 
+</html>
