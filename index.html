@@ -378,6 +378,41 @@
             animation: slideInLeft 0.5s ease 0.1s both;
         }
 
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .theme-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 18px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px) scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
         .header-actions {
             display: flex;
             gap: 12px;
@@ -1757,37 +1792,6 @@
             transform: translateY(-2px);
         }
 
-        /* Язык и тема - отдельные кнопки в шапке */
-        .top-controls {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 9999;
-        }
-
-        .control-btn {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            color: var(--text);
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 20px;
-        }
-
-        .control-btn:hover {
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
         /* Окно выхода */
         .logout-modal {
             max-width: 400px;
@@ -2078,15 +2082,11 @@
                 margin: 10px;
             }
             
-            .top-controls {
-                top: 10px;
-                right: 10px;
-            }
-            
-            .control-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
+            .header-center {
+                position: static;
+                transform: none;
+                margin-left: auto;
+                margin-right: auto;
             }
             
             .header-actions {
@@ -2161,6 +2161,10 @@
             
             .chat-info p {
                 font-size: 11px;
+            }
+            
+            .header-center {
+                display: none;
             }
         }
 
@@ -2365,17 +2369,6 @@
     </style>
 </head>
 <body>
-    <!-- Кнопки языка и темы -->
-    <div class="top-controls">
-        <button class="control-btn" id="themeBtn" title="Theme">
-            <i class="fas fa-moon"></i>
-        </button>
-        <button class="control-btn" id="langBtn" title="Language">
-            <i class="fas fa-globe"></i>
-            <span style="font-size: 12px; margin-left: 2px;" id="langText">EN</span>
-        </button>
-    </div>
-
     <!-- Аутентификация -->
     <div class="auth-container" id="authContainer">
         <div class="auth-card">
@@ -2452,6 +2445,19 @@
                         <h3 id="currentChatName">Nexus Messenger</h3>
                         <p id="currentChatStatus">Welcome!</p>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Кнопки языка и темы в центре -->
+            <div class="header-center">
+                <div class="theme-controls">
+                    <button class="control-btn" id="themeBtn" title="Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="control-btn" id="langBtn" title="Language">
+                        <i class="fas fa-globe"></i>
+                        <span style="font-size: 12px; margin-left: 2px;" id="langText">EN</span>
+                    </button>
                 </div>
             </div>
             
@@ -3093,31 +3099,35 @@
         let voiceQuality = 'high';
         let realTimeInterval = null;
 
-        // ============ БАЗА ДАННЫХ ============
-        class Database {
+        // ============ ГЛОБАЛЬНАЯ БАЗА ДАННЫХ ============
+        class GlobalDatabase {
+            // Получение всех пользователей (глобальные)
             static getUsers() {
                 try {
-                    const users = localStorage.getItem('nexus_users');
+                    const users = localStorage.getItem('nexus_global_users');
                     return users ? JSON.parse(users) : [];
                 } catch (error) {
-                    console.error('Error getting users:', error);
+                    console.error('Error getting global users:', error);
                     return [];
                 }
             }
             
+            // Сохранение всех пользователей (глобальные)
             static saveUsers(users) {
                 try {
-                    localStorage.setItem('nexus_users', JSON.stringify(users));
+                    localStorage.setItem('nexus_global_users', JSON.stringify(users));
                 } catch (error) {
-                    console.error('Error saving users:', error);
+                    console.error('Error saving global users:', error);
                 }
             }
             
+            // Получение пользователя по ID
             static getUser(userId) {
                 const users = this.getUsers();
                 return users.find(u => u.id === userId);
             }
             
+            // Обновление пользователя
             static updateUser(userId, updates) {
                 const users = this.getUsers();
                 const index = users.findIndex(u => u.id === userId);
@@ -3129,42 +3139,47 @@
                 return false;
             }
             
+            // Получение всех чатов (глобальные)
             static getChats() {
                 try {
-                    const chats = localStorage.getItem('nexus_chats');
+                    const chats = localStorage.getItem('nexus_global_chats');
                     return chats ? JSON.parse(chats) : [];
                 } catch (error) {
-                    console.error('Error getting chats:', error);
+                    console.error('Error getting global chats:', error);
                     return [];
                 }
             }
             
+            // Сохранение всех чатов (глобальные)
             static saveChats(chats) {
                 try {
-                    localStorage.setItem('nexus_chats', JSON.stringify(chats));
+                    localStorage.setItem('nexus_global_chats', JSON.stringify(chats));
                 } catch (error) {
-                    console.error('Error saving chats:', error);
+                    console.error('Error saving global chats:', error);
                 }
             }
             
+            // Получение всех сообщений (глобальные)
             static getMessages() {
                 try {
-                    const messages = localStorage.getItem('nexus_messages');
+                    const messages = localStorage.getItem('nexus_global_messages');
                     return messages ? JSON.parse(messages) : {};
                 } catch (error) {
-                    console.error('Error getting messages:', error);
+                    console.error('Error getting global messages:', error);
                     return {};
                 }
             }
             
+            // Сохранение всех сообщений (глобальные)
             static saveMessages(messages) {
                 try {
-                    localStorage.setItem('nexus_messages', JSON.stringify(messages));
+                    localStorage.setItem('nexus_global_messages', JSON.stringify(messages));
                 } catch (error) {
-                    console.error('Error saving messages:', error);
+                    console.error('Error saving global messages:', error);
                 }
             }
             
+            // Получение друзей пользователя
             static getFriends(userId) {
                 try {
                     const friends = localStorage.getItem(`nexus_friends_${userId}`);
@@ -3175,6 +3190,7 @@
                 }
             }
             
+            // Сохранение друзей пользователя
             static saveFriends(userId, friendsList) {
                 try {
                     localStorage.setItem(`nexus_friends_${userId}`, JSON.stringify(friendsList));
@@ -3183,24 +3199,27 @@
                 }
             }
             
-            static getFriendRequests(userId) {
+            // Получение запросов в друзья (глобальные)
+            static getFriendRequests() {
                 try {
-                    const requests = localStorage.getItem(`nexus_friend_requests_${userId}`);
+                    const requests = localStorage.getItem('nexus_global_friend_requests');
                     return requests ? JSON.parse(requests) : [];
                 } catch (error) {
-                    console.error('Error getting friend requests:', error);
+                    console.error('Error getting global friend requests:', error);
                     return [];
                 }
             }
             
-            static saveFriendRequests(userId, requests) {
+            // Сохранение запросов в друзья (глобальные)
+            static saveFriendRequests(requests) {
                 try {
-                    localStorage.setItem(`nexus_friend_requests_${userId}`, JSON.stringify(requests));
+                    localStorage.setItem('nexus_global_friend_requests', JSON.stringify(requests));
                 } catch (error) {
-                    console.error('Error saving friend requests:', error);
+                    console.error('Error saving global friend requests:', error);
                 }
             }
             
+            // Получение стикерпаков пользователя
             static getStickerPacks(userId) {
                 try {
                     const packs = localStorage.getItem(`nexus_sticker_packs_${userId}`);
@@ -3211,6 +3230,7 @@
                 }
             }
             
+            // Сохранение стикерпаков пользователя
             static saveStickerPacks(userId, packs) {
                 try {
                     localStorage.setItem(`nexus_sticker_packs_${userId}`, JSON.stringify(packs));
@@ -3219,6 +3239,7 @@
                 }
             }
             
+            // Получение настроек пользователя
             static getSettings(userId) {
                 try {
                     const settings = localStorage.getItem(`nexus_settings_${userId}`);
@@ -3229,6 +3250,7 @@
                 }
             }
             
+            // Сохранение настроек пользователя
             static saveSettings(userId, settings) {
                 try {
                     localStorage.setItem(`nexus_settings_${userId}`, JSON.stringify(settings));
@@ -3237,28 +3259,102 @@
                 }
             }
             
+            // Получение звонков (глобальные)
             static getCalls() {
                 try {
-                    const calls = localStorage.getItem('nexus_calls');
+                    const calls = localStorage.getItem('nexus_global_calls');
                     return calls ? JSON.parse(calls) : [];
                 } catch (error) {
-                    console.error('Error getting calls:', error);
+                    console.error('Error getting global calls:', error);
                     return [];
                 }
             }
             
+            // Сохранение звонков (глобальные)
             static saveCalls(calls) {
                 try {
-                    localStorage.setItem('nexus_calls', JSON.stringify(calls));
+                    localStorage.setItem('nexus_global_calls', JSON.stringify(calls));
                 } catch (error) {
-                    console.error('Error saving calls:', error);
+                    console.error('Error saving global calls:', error);
                 }
             }
             
+            // Добавление звонка
             static addCall(call) {
                 const calls = this.getCalls();
                 calls.push(call);
                 this.saveCalls(calls);
+            }
+            
+            // Удаление чата для всех участников
+            static removeChat(chatId) {
+                const chats = this.getChats();
+                const updatedChats = chats.filter(chat => chat.id !== chatId);
+                this.saveChats(updatedChats);
+                return updatedChats;
+            }
+            
+            // Добавление сообщения в чат
+            static addMessage(chatId, message) {
+                const messages = this.getMessages();
+                if (!messages[chatId]) {
+                    messages[chatId] = [];
+                }
+                messages[chatId].push(message);
+                this.saveMessages(messages);
+                return messages;
+            }
+            
+            // Получение чатов пользователя
+            static getUserChats(userId) {
+                const chats = this.getChats();
+                return chats.filter(chat => 
+                    chat.participants?.includes(userId)
+                );
+            }
+            
+            // Создание нового чата
+            static createChat(chat) {
+                const chats = this.getChats();
+                chats.push(chat);
+                this.saveChats(chats);
+                return chats;
+            }
+            
+            // Получение запросов в друзья для пользователя
+            static getFriendRequestsForUser(userId) {
+                const requests = this.getFriendRequests();
+                return requests.filter(request => 
+                    request.to === userId || request.from === userId
+                );
+            }
+            
+            // Отправка запроса в друзья
+            static sendFriendRequest(request) {
+                const requests = this.getFriendRequests();
+                requests.push(request);
+                this.saveFriendRequests(requests);
+                return requests;
+            }
+            
+            // Обновление запроса в друзья
+            static updateFriendRequest(requestId, updates) {
+                const requests = this.getFriendRequests();
+                const index = requests.findIndex(r => r.id === requestId);
+                if (index !== -1) {
+                    requests[index] = { ...requests[index], ...updates };
+                    this.saveFriendRequests(requests);
+                    return true;
+                }
+                return false;
+            }
+            
+            // Удаление запроса в друзья
+            static removeFriendRequest(requestId) {
+                const requests = this.getFriendRequests();
+                const updatedRequests = requests.filter(r => r.id !== requestId);
+                this.saveFriendRequests(updatedRequests);
+                return updatedRequests;
             }
         }
 
@@ -3505,13 +3601,13 @@
                     profilePhoto: 'everyone',
                     avatar: currentUser.avatar
                 };
-                Database.saveSettings(currentUser.id, settings);
+                GlobalDatabase.saveSettings(currentUser.id, settings);
             }
         }
 
         function loadSettings() {
             if (currentUser) {
-                const settings = Database.getSettings(currentUser.id);
+                const settings = GlobalDatabase.getSettings(currentUser.id);
                 currentLanguage = settings.language || 'en';
                 currentTheme = settings.theme || 'dark';
                 voiceStyle = settings.voiceStyle || 'modern';
@@ -3594,7 +3690,7 @@
             
             // Небольшая задержка для симуляции запроса
             setTimeout(() => {
-                const users = Database.getUsers();
+                const users = GlobalDatabase.getUsers();
                 const user = users.find(u => u.email === email && u.password === password);
                 
                 if (user) {
@@ -3635,7 +3731,7 @@
             registerButton.disabled = true;
             
             setTimeout(() => {
-                let users = Database.getUsers();
+                let users = GlobalDatabase.getUsers();
                 
                 if (users.some(u => u.email === email)) {
                     showNotification('Error', 'User with this email already exists', 'error');
@@ -3659,7 +3755,7 @@
                 };
                 
                 users.push(newUser);
-                Database.saveUsers(users);
+                GlobalDatabase.saveUsers(users);
                 
                 // Инициализируем данные пользователя
                 initializeUserData(newUser);
@@ -3674,9 +3770,8 @@
 
         function initializeUserData(user) {
             try {
-                // Создаем пустые списки друзей и запросов
-                Database.saveFriends(user.id, []);
-                Database.saveFriendRequests(user.id, []);
+                // Создаем пустые списки друзей
+                GlobalDatabase.saveFriends(user.id, []);
                 
                 // Создаем дефолтный стикерпак
                 const defaultStickerPack = {
@@ -3695,7 +3790,7 @@
                     ownerId: user.id
                 };
                 
-                Database.saveStickerPacks(user.id, [defaultStickerPack]);
+                GlobalDatabase.saveStickerPacks(user.id, [defaultStickerPack]);
                 
                 // Сохраняем настройки по умолчанию
                 const defaultSettings = {
@@ -3710,7 +3805,7 @@
                     lastSeen: 'everyone',
                     profilePhoto: 'everyone'
                 };
-                Database.saveSettings(user.id, defaultSettings);
+                GlobalDatabase.saveSettings(user.id, defaultSettings);
                 
                 console.log("User data initialized for:", user.email);
             } catch (error) {
@@ -3721,6 +3816,12 @@
         function loginUser(user) {
             currentUser = user;
             localStorage.setItem('nexus_current_user', JSON.stringify(user));
+            
+            // Обновляем статус пользователя
+            GlobalDatabase.updateUser(user.id, { 
+                status: 'online',
+                lastSeen: new Date().toISOString() 
+            });
             
             // Сбрасываем кнопки
             resetAuthButtons();
@@ -3749,14 +3850,12 @@
         }
 
         function loadUserData() {
-            users = Database.getUsers();
-            friends = Database.getFriends(currentUser.id);
-            friendRequests = Database.getFriendRequests(currentUser.id);
-            chats = Database.getChats().filter(chat => 
-                chat.participants?.includes(currentUser.id)
-            );
-            messages = Database.getMessages();
-            stickerPacks = Database.getStickerPacks(currentUser.id);
+            users = GlobalDatabase.getUsers();
+            friends = GlobalDatabase.getFriends(currentUser.id);
+            friendRequests = GlobalDatabase.getFriendRequestsForUser(currentUser.id);
+            chats = GlobalDatabase.getUserChats(currentUser.id);
+            messages = GlobalDatabase.getMessages();
+            stickerPacks = GlobalDatabase.getStickerPacks(currentUser.id);
             
             updateUserProfile();
             updateFriendsList();
@@ -3771,7 +3870,7 @@
         function initializeApp() {
             try {
                 // Проверяем, есть ли пользователи в базе
-                let users = Database.getUsers();
+                let users = GlobalDatabase.getUsers();
                 
                 // Если база пуста, добавляем демо-пользователя для тестирования
                 if (users.length === 0) {
@@ -3787,12 +3886,28 @@
                         lastSeen: new Date().toISOString()
                     };
                     users.push(demoUser);
-                    Database.saveUsers(users);
+                    GlobalDatabase.saveUsers(users);
                     
                     // Инициализируем данные демо-пользователя
                     initializeUserData(demoUser);
                     
-                    console.log("Created demo user for testing");
+                    // Создаем второго тестового пользователя
+                    const testUser = {
+                        id: generateId(),
+                        name: "Test User",
+                        email: "test@example.com",
+                        password: "test123",
+                        avatar: DEFAULT_AVATARS[1],
+                        avatarColor: getGradientColor("Test User"),
+                        status: 'online',
+                        createdAt: new Date().toISOString(),
+                        lastSeen: new Date().toISOString()
+                    };
+                    users.push(testUser);
+                    GlobalDatabase.saveUsers(users);
+                    initializeUserData(testUser);
+                    
+                    console.log("Created demo users for testing");
                 }
                 
                 // Проверяем сохраненную сессию
@@ -3800,7 +3915,7 @@
                 if (savedUser) {
                     try {
                         const user = JSON.parse(savedUser);
-                        const users = Database.getUsers();
+                        const users = GlobalDatabase.getUsers();
                         const existingUser = users.find(u => u.id === user.id && u.email === user.email);
                         
                         if (existingUser) {
@@ -3887,7 +4002,7 @@
             }
             
             friends.forEach(friendId => {
-                const friend = users.find(u => u.id === friendId);
+                const friend = GlobalDatabase.getUser(friendId);
                 if (!friend) return;
                 
                 const friendItem = document.createElement('div');
@@ -3935,7 +4050,7 @@
             
             chats.forEach(chat => {
                 const otherUserId = chat.participants?.find(id => id !== currentUser.id);
-                const otherUser = otherUserId ? users.find(u => u.id === otherUserId) : null;
+                const otherUser = otherUserId ? GlobalDatabase.getUser(otherUserId) : null;
                 
                 const chatItem = document.createElement('div');
                 chatItem.className = `chat-item ${currentChat && currentChat.id === chat.id ? 'active' : ''}`;
@@ -4059,7 +4174,7 @@
 
         // ============ ЧАТЫ ============
         function startChatWithFriend(friendId) {
-            const friend = users.find(u => u.id === friendId);
+            const friend = GlobalDatabase.getUser(friendId);
             if (!friend) return;
             
             let existingChat = chats.find(chat => 
@@ -4083,11 +4198,9 @@
                 unreadCount: 0
             };
             
-            chats.push(newChat);
-            Database.saveChats(chats);
-            
-            // Создать запись в чатах для обоих пользователей
-            updateUserChats(friendId, newChat);
+            chats = GlobalDatabase.createChat(newChat).filter(chat => 
+                chat.participants?.includes(currentUser.id)
+            );
             
             updateChatsList();
             selectChat(newChat);
@@ -4095,26 +4208,11 @@
             showNotification('Chat created', `${currentLanguage === 'ru' ? 'Чат создан с' : 'Chat created with'} ${friend.name}`, 'success');
         }
 
-        function updateUserChats(userId, chat) {
-            const userChats = Database.getChats().filter(c => 
-                c.participants?.includes(userId)
-            );
-            
-            if (!userChats.some(c => c.id === chat.id)) {
-                userChats.push(chat);
-                const allChats = Database.getChats();
-                if (!allChats.some(c => c.id === chat.id)) {
-                    allChats.push(chat);
-                    Database.saveChats(allChats);
-                }
-            }
-        }
-
         function selectChat(chat) {
             currentChat = chat;
             
             const otherUserId = chat.participants?.find(id => id !== currentUser.id);
-            const otherUser = otherUserId ? users.find(u => u.id === otherUserId) : null;
+            const otherUser = otherUserId ? GlobalDatabase.getUser(otherUserId) : null;
             
             document.getElementById('currentChatName').textContent = chat.name;
             const avatar = document.getElementById('currentChatAvatar');
@@ -4141,11 +4239,11 @@
             
             if (chat.unreadCount > 0) {
                 chat.unreadCount = 0;
-                const allChats = Database.getChats();
+                const allChats = GlobalDatabase.getChats();
                 const chatIndex = allChats.findIndex(c => c.id === chat.id);
                 if (chatIndex !== -1) {
                     allChats[chatIndex] = chat;
-                    Database.saveChats(allChats);
+                    GlobalDatabase.saveChats(allChats);
                     chats = allChats.filter(c => c.participants?.includes(currentUser.id));
                 }
                 updateChatsList();
@@ -4201,7 +4299,7 @@
         function createMessageElement(msg) {
             const message = document.createElement('div');
             const isOutgoing = msg.senderId === currentUser.id;
-            const sender = users.find(u => u.id === msg.senderId) || { name: 'Unknown' };
+            const sender = GlobalDatabase.getUser(msg.senderId) || { name: 'Unknown' };
             
             message.className = `message ${isOutgoing ? 'outgoing' : ''}`;
             
@@ -4335,64 +4433,42 @@
                 status: 'sent'
             };
             
-            if (!messages[currentChat.id]) messages[currentChat.id] = [];
-            messages[currentChat.id].push(message);
+            messages = GlobalDatabase.addMessage(currentChat.id, message);
             
-            try {
-                Database.saveMessages(messages);
-                
-                currentChat.lastMessage = text;
-                currentChat.lastMessageTime = new Date().toISOString();
-                
-                const allChats = Database.getChats();
-                const chatIndex = allChats.findIndex(c => c.id === currentChat.id);
-                if (chatIndex !== -1) {
-                    allChats[chatIndex] = currentChat;
-                    Database.saveChats(allChats);
-                    chats = allChats.filter(c => c.participants?.includes(currentUser.id));
-                }
-                
-                const messageElement = createMessageElement(message);
-                
-                const emptyState = messagesWrapper.querySelector('.empty-state');
-                if (emptyState) emptyState.remove();
-                
-                const lastDateElement = messagesWrapper.querySelector('.message-date:last-child');
-                const messageDate = formatDate(message.timestamp);
-                
-                if (!lastDateElement || lastDateElement.textContent !== messageDate) {
-                    const dateElement = document.createElement('div');
-                    dateElement.className = 'message-date';
-                    dateElement.textContent = messageDate;
-                    messagesWrapper.appendChild(dateElement);
-                }
-                
-                messagesWrapper.appendChild(messageElement);
-                messageInput.value = '';
-                autoResizeTextarea();
-                messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
-                
-                updateChatsList();
-                
-                showNotification('Message sent', 'Message delivered', 'success');
-                
-                // Обновить чат для других участников
-                updateChatForParticipants(currentChat);
-                
-            } catch (error) {
-                console.error('Error saving message:', error);
-                showNotification('Error', 'Failed to send message', 'error');
-            }
-        }
-
-        function updateChatForParticipants(chat) {
-            const allChats = Database.getChats();
-            const chatIndex = allChats.findIndex(c => c.id === chat.id);
+            currentChat.lastMessage = text;
+            currentChat.lastMessageTime = new Date().toISOString();
             
+            const allChats = GlobalDatabase.getChats();
+            const chatIndex = allChats.findIndex(c => c.id === currentChat.id);
             if (chatIndex !== -1) {
-                allChats[chatIndex] = chat;
-                Database.saveChats(allChats);
+                allChats[chatIndex] = currentChat;
+                GlobalDatabase.saveChats(allChats);
+                chats = allChats.filter(c => c.participants?.includes(currentUser.id));
             }
+            
+            const messageElement = createMessageElement(message);
+            
+            const emptyState = messagesWrapper.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+            
+            const lastDateElement = messagesWrapper.querySelector('.message-date:last-child');
+            const messageDate = formatDate(message.timestamp);
+            
+            if (!lastDateElement || lastDateElement.textContent !== messageDate) {
+                const dateElement = document.createElement('div');
+                dateElement.className = 'message-date';
+                dateElement.textContent = messageDate;
+                messagesWrapper.appendChild(dateElement);
+            }
+            
+            messagesWrapper.appendChild(messageElement);
+            messageInput.value = '';
+            autoResizeTextarea();
+            messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+            
+            updateChatsList();
+            
+            showNotification('Message sent', 'Message delivered', 'success');
         }
 
         // ============ ЭМОДЗИ ============
@@ -4531,9 +4607,7 @@
                     
                     voiceMessages[voiceMessage.id] = audioUrl;
                     
-                    if (!messages[currentChat.id]) messages[currentChat.id] = [];
-                    messages[currentChat.id].push(voiceMessage);
-                    Database.saveMessages(messages);
+                    messages = GlobalDatabase.addMessage(currentChat.id, voiceMessage);
                     
                     const messageElement = createMessageElement(voiceMessage);
                     messagesWrapper.appendChild(messageElement);
@@ -4542,9 +4616,6 @@
                     updateChatsList();
                     
                     showNotification('Voice message', 'Voice message sent', 'success');
-                    
-                    // Обновить чат для других участников
-                    updateChatForParticipants(currentChat);
                 };
                 
                 mediaRecorder.start();
@@ -4644,19 +4715,13 @@
                         status: 'sent'
                     };
                     
-                    if (!messages[currentChat.id]) messages[currentChat.id] = [];
-                    messages[currentChat.id].push(fileMessage);
-                    
-                    Database.saveMessages(messages);
+                    messages = GlobalDatabase.addMessage(currentChat.id, fileMessage);
                     
                     const messageElement = createMessageElement(fileMessage);
                     messagesWrapper.appendChild(messageElement);
                     messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
                     
                     updateChatsList();
-                    
-                    // Обновить чат для других участников
-                    updateChatForParticipants(currentChat);
                 };
                 reader.readAsDataURL(file);
             });
@@ -4761,7 +4826,7 @@
             requestsList.innerHTML = `<h3 style="margin-bottom: 16px; font-size: 16px;">Friend Requests</h3>`;
             
             incomingRequests.forEach(request => {
-                const user = users.find(u => u.id === request.from);
+                const user = GlobalDatabase.getUser(request.from);
                 if (!user) return;
                 
                 const requestItem = document.createElement('div');
@@ -4809,12 +4874,7 @@
                 createdAt: new Date().toISOString()
             };
             
-            friendRequests.push(request);
-            Database.saveFriendRequests(currentUser.id, friendRequests);
-            
-            const receiverRequests = Database.getFriendRequests(userId);
-            receiverRequests.push(request);
-            Database.saveFriendRequests(userId, receiverRequests);
+            friendRequests = GlobalDatabase.sendFriendRequest(request);
             
             showNotification('Friend request sent', 'Friend request sent', 'success');
             updateFriendRequestsList();
@@ -4824,20 +4884,19 @@
             const request = friendRequests.find(r => r.id === requestId);
             if (!request) return;
             
-            request.status = 'accepted';
+            GlobalDatabase.updateFriendRequest(requestId, { status: 'accepted' });
             
             if (!friends.includes(request.from)) {
                 friends.push(request.from);
             }
             
-            const friendFriends = Database.getFriends(request.from);
+            const friendFriends = GlobalDatabase.getFriends(request.from);
             if (!friendFriends.includes(currentUser.id)) {
                 friendFriends.push(currentUser.id);
-                Database.saveFriends(request.from, friendFriends);
+                GlobalDatabase.saveFriends(request.from, friendFriends);
             }
             
-            Database.saveFriends(currentUser.id, friends);
-            Database.saveFriendRequests(currentUser.id, friendRequests);
+            GlobalDatabase.saveFriends(currentUser.id, friends);
             
             updateFriendsList();
             updateFriendRequestsList();
@@ -4847,8 +4906,7 @@
         }
 
         function declineFriendRequest(requestId) {
-            friendRequests = friendRequests.filter(r => r.id !== requestId);
-            Database.saveFriendRequests(currentUser.id, friendRequests);
+            friendRequests = GlobalDatabase.removeFriendRequest(requestId);
             
             updateFriendRequestsList();
             updateBadges();
@@ -4857,15 +4915,7 @@
         }
 
         function cancelFriendRequest(requestId) {
-            const request = friendRequests.find(r => r.id === requestId);
-            if (!request) return;
-            
-            friendRequests = friendRequests.filter(r => r.id !== requestId);
-            Database.saveFriendRequests(currentUser.id, friendRequests);
-            
-            const receiverRequests = Database.getFriendRequests(request.to);
-            const updatedReceiverRequests = receiverRequests.filter(r => r.id !== requestId);
-            Database.saveFriendRequests(request.to, updatedReceiverRequests);
+            friendRequests = GlobalDatabase.removeFriendRequest(requestId);
             
             updateFriendRequestsList();
             updateBadges();
@@ -4908,11 +4958,8 @@
         }
 
         function deleteChat(chatId) {
-            const allChats = Database.getChats();
-            const updatedChats = allChats.filter(chat => chat.id !== chatId);
-            Database.saveChats(updatedChats);
-            
-            chats = updatedChats.filter(c => c.participants?.includes(currentUser.id));
+            const allChats = GlobalDatabase.removeChat(chatId);
+            chats = allChats.filter(c => c.participants?.includes(currentUser.id));
             
             if (currentChat && currentChat.id === chatId) {
                 currentChat = null;
@@ -5015,9 +5062,7 @@
                 status: 'sent'
             };
             
-            if (!messages[currentChat.id]) messages[currentChat.id] = [];
-            messages[currentChat.id].push(stickerMessage);
-            Database.saveMessages(messages);
+            messages = GlobalDatabase.addMessage(currentChat.id, stickerMessage);
             
             const messageElement = createMessageElement(stickerMessage);
             messagesWrapper.appendChild(messageElement);
@@ -5026,13 +5071,10 @@
             stickerPanel.classList.remove('active');
             updateChatsList();
             
-            // Обновить чат для других участников
-            updateChatForParticipants(currentChat);
-            
             const pack = stickerPacks.find(p => p.id === packId);
             if (pack) {
                 pack.installs = (pack.installs || 0) + 1;
-                Database.saveStickerPacks(currentUser.id, stickerPacks);
+                GlobalDatabase.saveStickerPacks(currentUser.id, stickerPacks);
             }
         }
 
@@ -5153,7 +5195,7 @@
             };
             
             stickerPacks.push(newPack);
-            Database.saveStickerPacks(currentUser.id, stickerPacks);
+            GlobalDatabase.saveStickerPacks(currentUser.id, stickerPacks);
             
             updateStickerPacks();
             createStickerPackModal.classList.remove('active');
@@ -5205,7 +5247,7 @@
             if (!confirm(currentLanguage === 'ru' ? 'Удалить этот стикерпак?' : 'Delete this sticker pack?')) return;
             
             stickerPacks = stickerPacks.filter(p => p.id !== packId);
-            Database.saveStickerPacks(currentUser.id, stickerPacks);
+            GlobalDatabase.saveStickerPacks(currentUser.id, stickerPacks);
             
             updateStickerPacks();
             stickerStatsModal.classList.remove('active');
@@ -5233,7 +5275,7 @@
 
         function startCall(type) {
             const otherUserId = currentChat.participants.find(id => id !== currentUser.id);
-            const otherUser = users.find(u => u.id === otherUserId);
+            const otherUser = GlobalDatabase.getUser(otherUserId);
             
             currentCall = {
                 id: generateId(),
@@ -5244,7 +5286,7 @@
                 startedAt: new Date().toISOString()
             };
             
-            Database.addCall(currentCall);
+            GlobalDatabase.addCall(currentCall);
             
             callContainer.classList.add('active');
             callStatus.textContent = t('calling');
@@ -5282,11 +5324,11 @@
                 currentCall.duration = callTime;
                 currentCall.status = 'ended';
                 
-                const calls = Database.getCalls();
+                const calls = GlobalDatabase.getCalls();
                 const callIndex = calls.findIndex(c => c.id === currentCall.id);
                 if (callIndex !== -1) {
                     calls[callIndex] = currentCall;
-                    Database.saveCalls(calls);
+                    GlobalDatabase.saveCalls(calls);
                 }
             }
         }
@@ -5334,7 +5376,7 @@
         });
 
         function loadSettingsContent() {
-            const settings = Database.getSettings(currentUser.id);
+            const settings = GlobalDatabase.getSettings(currentUser.id);
             
             settingsModalContent.innerHTML = `
                 <div class="settings-tab-content active" data-tab="account">
@@ -5496,7 +5538,7 @@
             
             document.getElementById('userNameInput').addEventListener('change', (e) => {
                 currentUser.name = e.target.value;
-                Database.updateUser(currentUser.id, { name: currentUser.name });
+                GlobalDatabase.updateUser(currentUser.id, { name: currentUser.name });
                 updateUserProfile();
                 updateChatsList();
             });
@@ -5611,7 +5653,7 @@
 
         function saveAvatar() {
             currentUser.avatar = selectedAvatarUrl;
-            Database.updateUser(currentUser.id, { avatar: selectedAvatarUrl });
+            GlobalDatabase.updateUser(currentUser.id, { avatar: selectedAvatarUrl });
             saveSettings();
             updateUserProfile();
             updateChatsList();
@@ -5633,6 +5675,14 @@
         });
 
         confirmLogout.addEventListener('click', () => {
+            // Обновляем статус пользователя
+            if (currentUser) {
+                GlobalDatabase.updateUser(currentUser.id, { 
+                    status: 'offline',
+                    lastSeen: new Date().toISOString() 
+                });
+            }
+            
             currentUser = null;
             localStorage.removeItem('nexus_current_user');
             
@@ -5690,12 +5740,11 @@
             }
             
             realTimeInterval = setInterval(() => {
-                // Обновляем данные из базы
-                users = Database.getUsers();
-                chats = Database.getChats().filter(chat => 
-                    chat.participants?.includes(currentUser.id)
-                );
-                messages = Database.getMessages();
+                // Обновляем данные из глобальной базы
+                users = GlobalDatabase.getUsers();
+                chats = GlobalDatabase.getUserChats(currentUser.id);
+                messages = GlobalDatabase.getMessages();
+                friendRequests = GlobalDatabase.getFriendRequestsForUser(currentUser.id);
                 
                 // Обновляем интерфейс
                 updateChatsList();
