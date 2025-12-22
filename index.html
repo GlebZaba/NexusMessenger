@@ -2881,7 +2881,6 @@
     <!-- Firebase SDK -->
     <script type="module">
         // ============ FIREBASE CONFIGURATION ============
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onChildAdded, onValue, get, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -3636,12 +3635,14 @@
         async function loadSettings() {
             if (currentUser) {
                 const settings = await FirebaseDatabase.getSettings(currentUser.id);
-                currentLanguage = settings.language || 'en';
-                currentTheme = settings.theme || 'dark';
-                voiceStyle = settings.voiceStyle || 'modern';
-                autoPlayVoice = settings.autoPlayVoice !== false;
-                voiceQuality = settings.voiceQuality || 'high';
-                currentUser.avatar = settings.avatar || null;
+                if (settings) {
+                    currentLanguage = settings.language || 'en';
+                    currentTheme = settings.theme || 'dark';
+                    voiceStyle = settings.voiceStyle || 'modern';
+                    autoPlayVoice = settings.autoPlayVoice !== false;
+                    voiceQuality = settings.voiceQuality || 'high';
+                    currentUser.avatar = settings.avatar || null;
+                }
                 
                 document.documentElement.setAttribute('data-theme', currentTheme);
                 langText.textContent = currentLanguage.toUpperCase();
@@ -3718,7 +3719,9 @@
             
             try {
                 const allUsers = await FirebaseDatabase.getUsers();
-                const user = Object.values(allUsers).find(u => u.email === email && u.password === password);
+                // Firebase возвращает объект, преобразуем в массив для поиска
+                const usersArray = Object.values(allUsers);
+                const user = usersArray.find(u => u.email === email && u.password === password);
                 
                 if (user) {
                     await loginUser(user);
@@ -3764,8 +3767,10 @@
             
             try {
                 const allUsers = await FirebaseDatabase.getUsers();
+                const usersArray = Object.values(allUsers);
                 
-                if (Object.values(allUsers).some(u => u.email === email)) {
+                // Проверяем, есть ли пользователь с таким email
+                if (usersArray.some(u => u.email === email)) {
                     showNotification('Error', 'User with this email already exists', 'error');
                     resetAuthButtons();
                     updateTexts();
@@ -3779,7 +3784,7 @@
                     id: userId,
                     name: name,
                     email: email,
-                    password: password,
+                    password: password, // Внимание: пароль хранится в открытом виде только для демо!
                     avatar: randomAvatar,
                     avatarColor: getGradientColor(name),
                     status: 'online',
@@ -3940,7 +3945,7 @@
                 let users = await FirebaseDatabase.getUsers();
                 
                 // Если база пуста, добавляем демо-пользователя для тестирования
-                if (Object.keys(users).length === 0) {
+                if (!users || Object.keys(users).length === 0) {
                     const demoUserId = generateId();
                     const demoUser = {
                         id: demoUserId,
@@ -3983,9 +3988,9 @@
                     try {
                         const user = JSON.parse(savedUser);
                         const users = await FirebaseDatabase.getUsers();
-                        const existingUser = users[user.id];
+                        const existingUser = Object.values(users).find(u => u.id === user.id && u.email === user.email);
                         
-                        if (existingUser && existingUser.email === user.email) {
+                        if (existingUser) {
                             // Автоматический вход
                             setTimeout(() => {
                                 loginUser(existingUser);
@@ -4251,7 +4256,8 @@
             
             let existingChat = Object.values(chats || {}).find(chat => 
                 chat.type === 'private' && 
-                chat.participants?.includes(friendId)
+                chat.participants?.includes(friendId) &&
+                chat.participants?.includes(currentUser.id)
             );
             
             if (existingChat) {
@@ -4859,7 +4865,7 @@
                 `;
                 resultsDiv.appendChild(resultItem);
             });
-        });
+        }
 
         function updateFriendRequestsList() {
             const requestsList = document.getElementById('friendRequestsList');
@@ -5524,7 +5530,7 @@
                                 <div class="setting-label">${t('settingsMessageSound')}</div>
                                 <div class="setting-control">
                                     <label class="toggle-switch">
-                                        <input type="checkbox" class="toggle-checkbox" id="messageSoundToggle" ${settings.messageSound !== false ? 'checked' : ''}>
+                                        <input type="checkbox" class="toggle-checkbox" id="messageSoundToggle" ${settings && settings.messageSound !== false ? 'checked' : ''}>
                                         <span class="toggle-slider"></span>
                                     </label>
                                 </div>
@@ -5533,7 +5539,7 @@
                                 <div class="setting-label">${t('settingsCallSound')}</div>
                                 <div class="setting-control">
                                     <label class="toggle-switch">
-                                        <input type="checkbox" class="toggle-checkbox" id="callSoundToggle" ${settings.callSound !== false ? 'checked' : ''}>
+                                        <input type="checkbox" class="toggle-checkbox" id="callSoundToggle" ${settings && settings.callSound !== false ? 'checked' : ''}>
                                         <span class="toggle-slider"></span>
                                     </label>
                                 </div>
